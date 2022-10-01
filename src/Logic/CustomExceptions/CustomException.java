@@ -1,2 +1,5 @@
-package Logic.CustomExceptions;public class CustomException {
+package Logic.CustomExceptions;
+
+public class CustomException {
+
 }

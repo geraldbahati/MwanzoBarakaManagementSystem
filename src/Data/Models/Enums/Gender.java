@@ -1,2 +1,6 @@
-package Data.Models;public class Gender {
+package Data.Models.Enums;
+
+public enum Gender {
+    Male,
+    Female
 }

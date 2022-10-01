@@ -1,9 +1,6 @@
 package Data.DBConnections;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.*;
 
 
 public class DBManager {
@@ -12,40 +9,9 @@ public class DBManager {
     private final String PASSWORD = "GBahati@12";
 
     private static Connection connection = null;
-    DBManager() {
 
-        try {
-            // get a connection to database
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            connection = DriverManager.getConnection(
-                    DATABASE_URL,
-                    USER,
-                    PASSWORD
-                    );
 
-            Statement statement;
-            statement = connection.createStatement();
-            ResultSet resultSet;
-            resultSet = statement.executeQuery(
-                    "select * from designation");
-            int code;
-            String title;
-            while (resultSet.next()) {
-                code = resultSet.getInt("code");
-                title = resultSet.getString("title").trim();
-                System.out.println("Code : " + code
-                        + " Title : " + title);
-            }
-            resultSet.close();
-            statement.close();
-            connection.close();
-        }
-        catch (Exception exception) {
-            System.out.println(exception);
-        }
-    }
-
-    private void connectToDB() {
+    private Connection connectToDB() {
         try {
             // get a connection to database
             Class.forName("com.mysql.cj.jdbc.Driver");
@@ -55,41 +21,39 @@ public class DBManager {
                     PASSWORD
             );
 
-            Statement statement;
-            statement = connection.createStatement();
-            ResultSet resultSet;
-            resultSet = statement.executeQuery(
-                    "select * from designation");
-            int code;
-            String title;
-            while (resultSet.next()) {
-                code = resultSet.getInt("code");
-                title = resultSet.getString("title").trim();
-                System.out.println("Code : " + code
-                        + " Title : " + title);
-            }
-            resultSet.close();
-            statement.close();
-            connection.close();
+            return connection;
+//            resultSet.close();
+//            statement.close();
+//            connection.close();
         }
         catch (Exception exception) {
-            System.out.println(exception);
+            return null;
         }
     }
 
-    public void loadData() {
+    public void loadData(String sqlQueryStatement)  {
+       try {
+           Statement statement;
+           statement = connection.createStatement();
+           ResultSet resultSet;
+           resultSet = statement.executeQuery(sqlQueryStatement);
+           int code;
+           String title;
+           while (resultSet.next()) {
+               code = resultSet.getInt("code");
+               title = resultSet.getString("title").trim();
+               System.out.println("Code : " + code
+                       + " Title : " + title);
+           }
+           resultSet.close();
+           statement.close();
+       } catch (Exception exception){
 
+       }
     }
 
-    public void addData() {
-
+    public void closeConnection() throws SQLException {
+        connection.close();
     }
 
-    public void updateData() {
-
-    }
-
-    public void deleteData() {
-
-    }
 }

@@ -8,7 +8,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.sql.Date;
 
 
 public class RegisterFrame extends JFrame implements ActionListener {
@@ -267,7 +267,7 @@ public class RegisterFrame extends JFrame implements ActionListener {
         + "/" + correspondingMonthIndex
         + "/" + (String) year.getSelectedItem();
         try {
-            return simpleDateFormat.parse(stringDate);
+            return new Date(simpleDateFormat.parse(stringDate).getTime());
         } catch (Exception e){
             return null;
         }
@@ -313,9 +313,10 @@ public class RegisterFrame extends JFrame implements ActionListener {
                 displayTextArea.setText(data + data1 + data2 + data3);
                 displayTextArea.setEditable(false);
 
-                var memberInstance = new Member("",firstName,lastName, gender,getMemberDOB(),mobileNumber,email);
-                MemberEvent.submitMemberToDatabase(memberInstance);
-
+                var memberInstance = new Member("",firstName,lastName, gender, getMemberDOB(),mobileNumber,email);
+                System.out.println(memberInstance);
+                System.out.println(memberInstance.toSqlStatement());
+                new MemberEvent().submitMemberToDatabase(memberInstance);
                 feedbackLabel.setText("Registration Successfully..");
             }
             else {

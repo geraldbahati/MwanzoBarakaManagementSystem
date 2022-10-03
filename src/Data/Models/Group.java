@@ -1,18 +1,28 @@
 package Data.Models;
 
 import java.sql.Timestamp;
+import java.time.Instant;
 
 public class Group {
     private String groupId;
-    private String groupName;
+    private String groupName = "";
     private Timestamp created;
     private Timestamp updated;
 
+
+    public Group(String groupId) {
+        setCreated(Timestamp.from(Instant.now()));
+
+        setGroupId(groupId);
+    }
+
     public Group(String groupId, String groupName, Timestamp created, Timestamp updated) {
-        this.groupId = groupId;
-        this.groupName = groupName;
-        this.created = created;
-        this.updated = updated;
+        setCreated(Timestamp.from(Instant.now()));
+
+        setGroupId(groupId);
+        setGroupName(groupName);
+        setCreated(created);
+        setUpdated(updated);
     }
 
     public String getGroupId() {
@@ -20,6 +30,7 @@ public class Group {
     }
 
     public void setGroupId(String groupId) {
+        setUpdated(Timestamp.from(Instant.now()));
         this.groupId = groupId;
     }
 
@@ -28,6 +39,7 @@ public class Group {
     }
 
     public void setGroupName(String groupName) {
+        setUpdated(Timestamp.from(Instant.now()));
         this.groupName = groupName;
     }
 

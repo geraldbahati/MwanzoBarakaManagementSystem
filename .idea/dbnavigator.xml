@@ -40,6 +40,7 @@
   </component>
   <component name="DBNavigator.Project.DatasetFilterManager">
     <filter-actions connection-id="15de0375-b748-46a7-ab91-e1d6f43a192e" dataset="baraka_db.group" active-filter-id="EMPTY_FILTER" />
+    <filter-actions connection-id="15de0375-b748-46a7-ab91-e1d6f43a192e" dataset="baraka_db.member" active-filter-id="EMPTY_FILTER" />
   </component>
   <component name="DBNavigator.Project.EditorStateManager">
     <last-used-providers />

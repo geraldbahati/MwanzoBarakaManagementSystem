@@ -2,16 +2,15 @@ package Data.Models;
 
 import Data.Models.Enums.Gender;
 
-import java.util.Date;
-import java.sql.Timestamp;
+import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.util.ArrayList;
 
 public class Member {
     private static final String tableTitle = "member";
-
+    private static final ArrayList<Member> memberRecords = new ArrayList<>();
     private static final String tableFields =
-        "member_id, " +
         "first_name, " +
         "last_name, " +
         "gender, " +
@@ -31,7 +30,6 @@ public class Member {
     private String mobileNumber;
     private String email;
     private Group associatedGroup = null;
-    private boolean isAdmin = false;
     private Timestamp created;
     private Timestamp updated;
 
@@ -46,6 +44,8 @@ public class Member {
         setMobileNumber(mobileNumber);
         setMobileNumber(mobileNumber);
         setDateOfBirth(dateOfBirth);
+
+        memberRecords.add(this);
     }
 
     public String getMemberID() {
@@ -75,8 +75,8 @@ public class Member {
         this.lastName = lastName;
     }
 
-    public String getDateOfBirth() {
-        return simpleDateFormat.format(dateOfBirth);
+    public Date getDateOfBirth() {
+        return dateOfBirth;
     }
 
     public void setDateOfBirth(Date dateOfBirth) {
@@ -100,15 +100,6 @@ public class Member {
     public void setEmail(String email) {
         setUpdated(Timestamp.from(Instant.now()));
         this.email = email;
-    }
-
-    public boolean isAdmin() {
-        return isAdmin;
-    }
-
-    public void setAdmin(boolean admin) {
-        setUpdated(Timestamp.from(Instant.now()));
-        isAdmin = admin;
     }
 
     public Timestamp getCreated() {
@@ -136,8 +127,8 @@ public class Member {
         this.associatedGroup = associatedGroup;
     }
 
-    public Gender getGender() {
-        return gender;
+    public String getGender() {
+        return gender.name();
     }
 
     public void setGender(Gender gender) {
@@ -145,20 +136,40 @@ public class Member {
         this.gender = gender;
     }
 
-    public String toSqlStatement() {
-        final String tableValues = String.format(
-                "%s, %s, %s, %s, %s, %s, %s, %s",
-                this.getMemberID(),
-                this.getFirstName(),
-                this.getLastName(),
-                this.getGender().name(),
-                this.getDateOfBirth(),
-                this.getEmail(),
-                this.getCreated(),
-                this.getUpdated()
-        );
-        return String.format("INSERT INTO %s (%s) VALUE (%s)", tableTitle, tableFields, tableValues);
 
+
+    public String toSqlStatement() {
+        StringBuilder tableValues = new StringBuilder("");
+        for(String ignored : tableFields.split(",")){
+            tableValues.append("?,");
+        }
+        tableValues.deleteCharAt(tableValues.length() - 1);
+
+        return String.format("INSERT INTO %s (%s) VALUE (%s)", tableTitle, tableFields, tableValues.toString());
+
+    }
+
+    public static void fromDatabase(ResultSet resultSet) {
+        try {
+            while (resultSet.next()) {
+                var member = new Member(
+                        resultSet.getString("member_id"),
+                        resultSet.getString("first_name"),
+                        resultSet.getString("last_name"),
+                        Gender.valueOf(resultSet.getString("gender")),
+                        resultSet.getDate("date_of_birth"),
+                        resultSet.getString("mobile_number"),
+                        resultSet.getString("email")
+                );
+                member.setAssociatedGroup(new Group(resultSet.getString("group_id")));
+                member.setCreated(resultSet.getTimestamp("member_created"));
+                member.setUpdated(resultSet.getTimestamp("member_updated"));
+            }
+
+        } catch (SQLException e) {
+            System.out.println(e);
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -172,7 +183,6 @@ public class Member {
                 ", mobileNumber='" + mobileNumber + '\'' +
                 ", email='" + email + '\'' +
                 ", associatedGroup=" + associatedGroup +
-                ", isAdmin=" + isAdmin +
                 ", created=" + created +
                 ", updated=" + updated +
                 '}';

@@ -11,6 +11,7 @@ public class Member {
     private static final String tableTitle = "member";
     private static final ArrayList<Member> memberRecords = new ArrayList<>();
     private static final String tableFields =
+        "member_id, " +
         "first_name, " +
         "last_name, " +
         "gender, " +
@@ -33,7 +34,15 @@ public class Member {
     private Timestamp created;
     private Timestamp updated;
 
-    public Member(String memberID, String firstName, String lastName, Gender gender, Date dateOfBirth, String mobileNumber, String email) {
+    public Member(
+            String memberID,
+            String firstName,
+            String lastName,
+            Gender gender,
+            Date dateOfBirth,
+            String mobileNumber,
+            String email
+    ) {
         setCreated(Timestamp.from(Instant.now()));
         setMemberID(memberID);
         setFirstName(firstName);
@@ -44,8 +53,6 @@ public class Member {
         setMobileNumber(mobileNumber);
         setMobileNumber(mobileNumber);
         setDateOfBirth(dateOfBirth);
-
-        memberRecords.add(this);
     }
 
     public String getMemberID() {
@@ -136,8 +143,17 @@ public class Member {
         this.gender = gender;
     }
 
+    public static Member[] getMemberRecords() {
+        return (Member[]) memberRecords.toArray();
+    }
 
-
+    public static String generateMemberId() {
+        if (memberRecords.size() == 0) return "M-001";
+        var lastData = memberRecords.get(memberRecords.size() - 1);
+        String lastMemberID = lastData.getMemberID();
+        int newIndex = Integer.parseInt(lastMemberID.split("-")[1]) + 1;
+        return "M-" + String.format("%02d",newIndex);
+    }
     public String toSqlStatement() {
         StringBuilder tableValues = new StringBuilder("");
         for(String ignored : tableFields.split(",")){
@@ -146,7 +162,6 @@ public class Member {
         tableValues.deleteCharAt(tableValues.length() - 1);
 
         return String.format("INSERT INTO %s (%s) VALUE (%s)", tableTitle, tableFields, tableValues.toString());
-
     }
 
     public static void fromDatabase(ResultSet resultSet) {
@@ -164,6 +179,8 @@ public class Member {
                 member.setAssociatedGroup(new Group(resultSet.getString("group_id")));
                 member.setCreated(resultSet.getTimestamp("member_created"));
                 member.setUpdated(resultSet.getTimestamp("member_updated"));
+
+                memberRecords.add(member);
             }
 
         } catch (SQLException e) {

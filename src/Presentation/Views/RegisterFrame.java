@@ -273,6 +273,20 @@ public class RegisterFrame extends JFrame implements ActionListener {
         }
     }
 
+    private void runHomePage() {
+        EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                try {
+                    HomeFrame frame = new HomeFrame();
+                    frame.setVisible(true);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        this.dispose();
+    }
+
     // method actionPerformed()
     // to get the action performed
     // by the user and act accordingly
@@ -317,6 +331,7 @@ public class RegisterFrame extends JFrame implements ActionListener {
                 System.out.println(memberInstance);
                 System.out.println(memberInstance.toSqlStatement());
                 new MemberEvent().submitMemberToDatabase(memberInstance);
+                runHomePage();
                 feedbackLabel.setText("Registration Successfully..");
             }
             else {

@@ -6,6 +6,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import Data.Models.Member;
 import Presentation.Widgets.RoundedBorder;
 
 import javax.swing.JLabel;
@@ -38,6 +39,8 @@ public class HomeFrame extends JFrame {
 
 	private JPanel contentPane;
 	private final JPanel titlePanel = new JPanel();
+
+	private Member currentMember;
 
 	/**
 	 * Launch the application.
@@ -137,14 +140,14 @@ public class HomeFrame extends JFrame {
 		scrollPane.setBounds(216, 6, 716, 562);
 		bodyPanel.add(scrollPane);
 		
-		JPanel panel = new JPanel();
-		scrollPane.setViewportView(panel);
-		GridBagLayout gbl_panel = new GridBagLayout();
-		gbl_panel.columnWidths = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-		gbl_panel.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-		gbl_panel.columnWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
-		gbl_panel.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
-		panel.setLayout(gbl_panel);
+		JPanel detailsPanel = new JPanel();
+		scrollPane.setViewportView(detailsPanel);
+		GridBagLayout gbl_detailsPanel = new GridBagLayout();
+		gbl_detailsPanel.columnWidths = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+		gbl_detailsPanel.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+		gbl_detailsPanel.columnWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
+		gbl_detailsPanel.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
+		detailsPanel.setLayout(gbl_detailsPanel);
 		
 		JLabel memberDetailHeaderLabel = new JLabel("Detail Information of Gerald Bahati");
 		memberDetailHeaderLabel.setFont(new Font("SansSerif", Font.BOLD, 20));
@@ -153,7 +156,7 @@ public class HomeFrame extends JFrame {
 		gbc_memberDetailHeaderLabel.insets = new Insets(0, 0, 5, 5);
 		gbc_memberDetailHeaderLabel.gridx = 1;
 		gbc_memberDetailHeaderLabel.gridy = 2;
-		panel.add(memberDetailHeaderLabel, gbc_memberDetailHeaderLabel);
+		detailsPanel.add(memberDetailHeaderLabel, gbc_memberDetailHeaderLabel);
 		
 		JButton editProfileButton = new JButton("Edit Details");
 		editProfileButton.setFont(new Font("Lucida Grande", Font.PLAIN, 14));
@@ -165,7 +168,7 @@ public class HomeFrame extends JFrame {
 		gbc_editProfileButton.insets = new Insets(0, 0, 5, 5);
 		gbc_editProfileButton.gridx = 9;
 		gbc_editProfileButton.gridy = 2;
-		panel.add(editProfileButton, gbc_editProfileButton);
+		detailsPanel.add(editProfileButton, gbc_editProfileButton);
 		
 		JSeparator separator_1 = new JSeparator();
 		GridBagConstraints gbc_separator_1 = new GridBagConstraints();
@@ -174,7 +177,7 @@ public class HomeFrame extends JFrame {
 		gbc_separator_1.insets = new Insets(0, 0, 5, 5);
 		gbc_separator_1.gridx = 1;
 		gbc_separator_1.gridy = 3;
-		panel.add(separator_1, gbc_separator_1);
+		detailsPanel.add(separator_1, gbc_separator_1);
 		
 		JLabel memberIDLabel = new JLabel("Member ID");
 		memberIDLabel.setFont(new Font("SansSerif", Font.PLAIN, 14));
@@ -183,7 +186,7 @@ public class HomeFrame extends JFrame {
 		gbc_memberIDLabel.insets = new Insets(0, 0, 5, 5);
 		gbc_memberIDLabel.gridx = 1;
 		gbc_memberIDLabel.gridy = 4;
-		panel.add(memberIDLabel, gbc_memberIDLabel);
+		detailsPanel.add(memberIDLabel, gbc_memberIDLabel);
 		
 		JLabel memberIDHolder = new JLabel("MM-001");
 		memberIDHolder.setFont(new Font("SansSerif", Font.PLAIN, 14));
@@ -193,7 +196,7 @@ public class HomeFrame extends JFrame {
 		gbc_memberIDHolder.insets = new Insets(0, 0, 5, 5);
 		gbc_memberIDHolder.gridx = 5;
 		gbc_memberIDHolder.gridy = 4;
-		panel.add(memberIDHolder, gbc_memberIDHolder);
+		detailsPanel.add(memberIDHolder, gbc_memberIDHolder);
 		
 		JSeparator separator = new JSeparator();
 		GridBagConstraints gbc_separator = new GridBagConstraints();
@@ -202,7 +205,7 @@ public class HomeFrame extends JFrame {
 		gbc_separator.insets = new Insets(0, 0, 5, 5);
 		gbc_separator.gridx = 1;
 		gbc_separator.gridy = 5;
-		panel.add(separator, gbc_separator);
+		detailsPanel.add(separator, gbc_separator);
 		
 		JLabel memberNameLabel = new JLabel("Member Name");
 		memberNameLabel.setFont(new Font("SansSerif", Font.PLAIN, 14));
@@ -211,7 +214,7 @@ public class HomeFrame extends JFrame {
 		gbc_memberNameLabel.insets = new Insets(0, 0, 5, 5);
 		gbc_memberNameLabel.gridx = 1;
 		gbc_memberNameLabel.gridy = 6;
-		panel.add(memberNameLabel, gbc_memberNameLabel);
+		detailsPanel.add(memberNameLabel, gbc_memberNameLabel);
 		
 		JLabel memberNameHolder = new JLabel("Gerald Bahati");
 		memberNameHolder.setFont(new Font("SansSerif", Font.PLAIN, 14));
@@ -221,7 +224,7 @@ public class HomeFrame extends JFrame {
 		gbc_memberNameHolder.insets = new Insets(0, 0, 5, 5);
 		gbc_memberNameHolder.gridx = 5;
 		gbc_memberNameHolder.gridy = 6;
-		panel.add(memberNameHolder, gbc_memberNameHolder);
+		detailsPanel.add(memberNameHolder, gbc_memberNameHolder);
 		
 		JSeparator separator_2 = new JSeparator();
 		GridBagConstraints gbc_separator_2 = new GridBagConstraints();
@@ -230,7 +233,7 @@ public class HomeFrame extends JFrame {
 		gbc_separator_2.insets = new Insets(0, 0, 5, 5);
 		gbc_separator_2.gridx = 1;
 		gbc_separator_2.gridy = 7;
-		panel.add(separator_2, gbc_separator_2);
+		detailsPanel.add(separator_2, gbc_separator_2);
 		
 		JLabel genderLabel = new JLabel("Gender");
 		genderLabel.setFont(new Font("SansSerif", Font.PLAIN, 14));
@@ -239,7 +242,7 @@ public class HomeFrame extends JFrame {
 		gbc_genderLabel.insets = new Insets(0, 0, 5, 5);
 		gbc_genderLabel.gridx = 1;
 		gbc_genderLabel.gridy = 8;
-		panel.add(genderLabel, gbc_genderLabel);
+		detailsPanel.add(genderLabel, gbc_genderLabel);
 		
 		JLabel genderHolder = new JLabel("Male");
 		genderHolder.setFont(new Font("SansSerif", Font.PLAIN, 14));
@@ -249,7 +252,7 @@ public class HomeFrame extends JFrame {
 		gbc_genderHolder.insets = new Insets(0, 0, 5, 5);
 		gbc_genderHolder.gridx = 5;
 		gbc_genderHolder.gridy = 8;
-		panel.add(genderHolder, gbc_genderHolder);
+		detailsPanel.add(genderHolder, gbc_genderHolder);
 		
 		JSeparator separator_3 = new JSeparator();
 		GridBagConstraints gbc_separator_3 = new GridBagConstraints();
@@ -258,7 +261,7 @@ public class HomeFrame extends JFrame {
 		gbc_separator_3.insets = new Insets(0, 0, 5, 5);
 		gbc_separator_3.gridx = 1;
 		gbc_separator_3.gridy = 9;
-		panel.add(separator_3, gbc_separator_3);
+		detailsPanel.add(separator_3, gbc_separator_3);
 		
 		JLabel DOBTitleLabel = new JLabel("Date of Birth");
 		DOBTitleLabel.setFont(new Font("SansSerif", Font.PLAIN, 14));
@@ -267,7 +270,7 @@ public class HomeFrame extends JFrame {
 		gbc_DOBTitleLabel.insets = new Insets(0, 0, 5, 5);
 		gbc_DOBTitleLabel.gridx = 1;
 		gbc_DOBTitleLabel.gridy = 10;
-		panel.add(DOBTitleLabel, gbc_DOBTitleLabel);
+		detailsPanel.add(DOBTitleLabel, gbc_DOBTitleLabel);
 		
 		JLabel DOBHolder = new JLabel("13 Thur 2021");
 		DOBHolder.setFont(new Font("SansSerif", Font.PLAIN, 14));
@@ -277,7 +280,7 @@ public class HomeFrame extends JFrame {
 		gbc_DOBHolder.insets = new Insets(0, 0, 5, 5);
 		gbc_DOBHolder.gridx = 5;
 		gbc_DOBHolder.gridy = 10;
-		panel.add(DOBHolder, gbc_DOBHolder);
+		detailsPanel.add(DOBHolder, gbc_DOBHolder);
 		
 		JSeparator separator_4 = new JSeparator();
 		GridBagConstraints gbc_separator_4 = new GridBagConstraints();
@@ -286,7 +289,7 @@ public class HomeFrame extends JFrame {
 		gbc_separator_4.insets = new Insets(0, 0, 5, 5);
 		gbc_separator_4.gridx = 1;
 		gbc_separator_4.gridy = 11;
-		panel.add(separator_4, gbc_separator_4);
+		detailsPanel.add(separator_4, gbc_separator_4);
 		
 		JLabel ageLabel = new JLabel("Age");
 		ageLabel.setFont(new Font("SansSerif", Font.PLAIN, 14));
@@ -295,7 +298,7 @@ public class HomeFrame extends JFrame {
 		gbc_ageLabel.insets = new Insets(0, 0, 5, 5);
 		gbc_ageLabel.gridx = 1;
 		gbc_ageLabel.gridy = 12;
-		panel.add(ageLabel, gbc_ageLabel);
+		detailsPanel.add(ageLabel, gbc_ageLabel);
 		
 		JLabel ageHolder = new JLabel("23");
 		ageHolder.setFont(new Font("SansSerif", Font.PLAIN, 14));
@@ -305,7 +308,7 @@ public class HomeFrame extends JFrame {
 		gbc_ageHolder.insets = new Insets(0, 0, 5, 5);
 		gbc_ageHolder.gridx = 5;
 		gbc_ageHolder.gridy = 12;
-		panel.add(ageHolder, gbc_ageHolder);
+		detailsPanel.add(ageHolder, gbc_ageHolder);
 		
 		JSeparator separator_5 = new JSeparator();
 		GridBagConstraints gbc_separator_5 = new GridBagConstraints();
@@ -314,7 +317,7 @@ public class HomeFrame extends JFrame {
 		gbc_separator_5.insets = new Insets(0, 0, 5, 5);
 		gbc_separator_5.gridx = 1;
 		gbc_separator_5.gridy = 13;
-		panel.add(separator_5, gbc_separator_5);
+		detailsPanel.add(separator_5, gbc_separator_5);
 		
 		JLabel dateOfJoinLabel = new JLabel("Date of Join");
 		dateOfJoinLabel.setFont(new Font("SansSerif", Font.PLAIN, 14));
@@ -323,7 +326,7 @@ public class HomeFrame extends JFrame {
 		gbc_dateOfJoinLabel.insets = new Insets(0, 0, 5, 5);
 		gbc_dateOfJoinLabel.gridx = 1;
 		gbc_dateOfJoinLabel.gridy = 14;
-		panel.add(dateOfJoinLabel, gbc_dateOfJoinLabel);
+		detailsPanel.add(dateOfJoinLabel, gbc_dateOfJoinLabel);
 		
 		JLabel dateOfJoinHolder = new JLabel("23 Mar 2922");
 		dateOfJoinHolder.setFont(new Font("SansSerif", Font.PLAIN, 14));
@@ -333,7 +336,7 @@ public class HomeFrame extends JFrame {
 		gbc_dateOfJoinHolder.insets = new Insets(0, 0, 5, 5);
 		gbc_dateOfJoinHolder.gridx = 5;
 		gbc_dateOfJoinHolder.gridy = 14;
-		panel.add(dateOfJoinHolder, gbc_dateOfJoinHolder);
+		detailsPanel.add(dateOfJoinHolder, gbc_dateOfJoinHolder);
 		
 		JLabel sharesContributionTitleLabel = new JLabel("Shares Contribution by the Member");
 		sharesContributionTitleLabel.setFont(new Font("SansSerif", Font.BOLD, 20));
@@ -342,7 +345,7 @@ public class HomeFrame extends JFrame {
 		gbc_sharesContributionTitleLabel.gridwidth = 9;
 		gbc_sharesContributionTitleLabel.gridx = 1;
 		gbc_sharesContributionTitleLabel.gridy = 16;
-		panel.add(sharesContributionTitleLabel, gbc_sharesContributionTitleLabel);
+		detailsPanel.add(sharesContributionTitleLabel, gbc_sharesContributionTitleLabel);
 		
 		JLabel latestDateOfContTitleLabel = new JLabel("Last Transaction Date");
 		latestDateOfContTitleLabel.setFont(new Font("SansSerif", Font.PLAIN, 14));
@@ -351,7 +354,7 @@ public class HomeFrame extends JFrame {
 		gbc_latestDateOfContTitleLabel.insets = new Insets(0, 0, 5, 5);
 		gbc_latestDateOfContTitleLabel.gridx = 1;
 		gbc_latestDateOfContTitleLabel.gridy = 18;
-		panel.add(latestDateOfContTitleLabel, gbc_latestDateOfContTitleLabel);
+		detailsPanel.add(latestDateOfContTitleLabel, gbc_latestDateOfContTitleLabel);
 		
 		JLabel counterTitleLabel = new JLabel("Counter");
 		counterTitleLabel.setFont(new Font("SansSerif", Font.PLAIN, 14));
@@ -360,7 +363,7 @@ public class HomeFrame extends JFrame {
 		gbc_counterTitleLabel.insets = new Insets(0, 0, 5, 5);
 		gbc_counterTitleLabel.gridx = 3;
 		gbc_counterTitleLabel.gridy = 18;
-		panel.add(counterTitleLabel, gbc_counterTitleLabel);
+		detailsPanel.add(counterTitleLabel, gbc_counterTitleLabel);
 		
 		JLabel amountTitleLabel = new JLabel("Monthly Contributed");
 		amountTitleLabel.setFont(new Font("SansSerif", Font.PLAIN, 14));
@@ -369,7 +372,7 @@ public class HomeFrame extends JFrame {
 		gbc_amountTitleLabel.insets = new Insets(0, 0, 5, 5);
 		gbc_amountTitleLabel.gridx = 5;
 		gbc_amountTitleLabel.gridy = 18;
-		panel.add(amountTitleLabel, gbc_amountTitleLabel);
+		detailsPanel.add(amountTitleLabel, gbc_amountTitleLabel);
 		
 		JLabel totalSharesLabel = new JLabel("Total Shares");
 		totalSharesLabel.setFont(new Font("SansSerif", Font.PLAIN, 14));
@@ -377,7 +380,7 @@ public class HomeFrame extends JFrame {
 		gbc_totalSharesLabel.insets = new Insets(0, 0, 5, 5);
 		gbc_totalSharesLabel.gridx = 7;
 		gbc_totalSharesLabel.gridy = 18;
-		panel.add(totalSharesLabel, gbc_totalSharesLabel);
+		detailsPanel.add(totalSharesLabel, gbc_totalSharesLabel);
 		
 		JSeparator separator_6 = new JSeparator();
 		GridBagConstraints gbc_separator_6 = new GridBagConstraints();
@@ -386,13 +389,15 @@ public class HomeFrame extends JFrame {
 		gbc_separator_6.insets = new Insets(0, 0, 5, 5);
 		gbc_separator_6.gridx = 1;
 		gbc_separator_6.gridy = 19;
-		panel.add(separator_6, gbc_separator_6);
+		detailsPanel.add(separator_6, gbc_separator_6);
 		
 		JButton moreDetailsButton = new JButton("View Details");
 		GridBagConstraints gbc_moreDetailsButton = new GridBagConstraints();
 		gbc_moreDetailsButton.insets = new Insets(0, 0, 0, 5);
 		gbc_moreDetailsButton.gridx = 9;
 		gbc_moreDetailsButton.gridy = 20;
-		panel.add(moreDetailsButton, gbc_moreDetailsButton);
+		detailsPanel.add(moreDetailsButton, gbc_moreDetailsButton);
 	}
+
+
 }

@@ -18,30 +18,9 @@ public class MemberEvent {
 
     public void loadDataForDatabase(String sqlQueryStatement)  {
         try {
-            int code;
-            String title;
-
-            String memberID;
-            String firstName;
-            String lastName;
-            Gender gender;
-            Date dateOfBirth;
-            String mobileNumber;
-            String email;
-            Group associatedGroup;
-            boolean isAdmin;
-            Timestamp created;
-            Timestamp updated;
-
             statement = connection.createStatement();
             resultSet = statement.executeQuery(sqlQueryStatement);
-
-            while (resultSet.next()) {
-                code = resultSet.getInt("code");
-                title = resultSet.getString("title").trim();
-                System.out.println("Code : " + code
-                        + " Title : " + title);
-            }
+            Member.fromDatabase(resultSet);
             resultSet.close();
             statement.close();
         } catch (Exception exception){
@@ -69,19 +48,23 @@ public class MemberEvent {
 
     }
 
+    public void getCurrentMember() {
+
+    }
+
     private void sendMemberDataToDatabase(Member member) throws InvalidFieldEnteredException {
         try {
             if(connection!=null){
                 preparedStatement = connection.prepareStatement(member.toSqlStatement());
-//                preparedStatement.setString (1, member.getMemberID());
-                preparedStatement.setString (1, member.getFirstName());
-                preparedStatement.setString(2,member.getLastName());
-                preparedStatement.setString(3,member.getGender());
-                preparedStatement.setDate(4, member.getDateOfBirth());
-                preparedStatement.setString(5,member.getMobileNumber());
-                preparedStatement.setString(6,member.getEmail());
-                preparedStatement.setTimestamp(7,member.getCreated());
-                preparedStatement.setTimestamp(8,member.getUpdated());
+                preparedStatement.setString (1, Member.generateMemberId());
+                preparedStatement.setString (2, member.getFirstName());
+                preparedStatement.setString(3,member.getLastName());
+                preparedStatement.setString(4,member.getGender());
+                preparedStatement.setDate(5, member.getDateOfBirth());
+                preparedStatement.setString(6,member.getMobileNumber());
+                preparedStatement.setString(7,member.getEmail());
+                preparedStatement.setTimestamp(8,member.getCreated());
+                preparedStatement.setTimestamp(9,member.getUpdated());
 
                 preparedStatement.execute();
                 connection.close();

@@ -2,9 +2,14 @@ package Data.Models;
 
 import Data.Models.Enums.Gender;
 
-import java.sql.*;
+import java.sql.Date;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.ArrayList;
 
 public class Member {
@@ -41,7 +46,8 @@ public class Member {
             Gender gender,
             Date dateOfBirth,
             String mobileNumber,
-            String email
+            String email,
+            Group associatedGroup
     ) {
         setCreated(Timestamp.from(Instant.now()));
         setMemberID(memberID);
@@ -53,6 +59,31 @@ public class Member {
         setMobileNumber(mobileNumber);
         setMobileNumber(mobileNumber);
         setDateOfBirth(dateOfBirth);
+        setAssociatedGroup(associatedGroup);
+
+        memberRecords.add(this);
+    }
+
+    public Member(String memberID,
+                  String firstName,
+                  String lastName,
+                  Gender gender,
+                  Date dateOfBirth,
+                  String mobileNumber,
+                  String email,
+                  Group associatedGroup,
+                  Timestamp created,
+                  Timestamp updated) {
+        this.memberID = memberID;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.gender = gender;
+        this.dateOfBirth = dateOfBirth;
+        this.mobileNumber = mobileNumber;
+        this.email = email;
+        this.associatedGroup = associatedGroup;
+        this.created = created;
+        this.updated = updated;
     }
 
     public String getMemberID() {
@@ -125,6 +156,11 @@ public class Member {
         this.updated = updated;
     }
 
+    public int getAge() {
+        LocalDate currentDate = LocalDate.now();
+        return Period.between(getDateOfBirth().toLocalDate(),currentDate).getYears();
+    }
+
     public Group getAssociatedGroup() {
         return associatedGroup;
     }
@@ -143,8 +179,12 @@ public class Member {
         this.gender = gender;
     }
 
-    public static Member[] getMemberRecords() {
-        return (Member[]) memberRecords.toArray();
+    public static Object[] getMemberRecords() {
+        return memberRecords.toArray();
+    }
+
+    public static Member getActiveUser(){
+        return memberRecords.get( memberRecords.size() - 1);
     }
 
     public static String generateMemberId() {
@@ -152,16 +192,16 @@ public class Member {
         var lastData = memberRecords.get(memberRecords.size() - 1);
         String lastMemberID = lastData.getMemberID();
         int newIndex = Integer.parseInt(lastMemberID.split("-")[1]) + 1;
-        return "M-" + String.format("%02d",newIndex);
+        return "M-" + String.format("%03d",newIndex);
     }
     public String toSqlStatement() {
-        StringBuilder tableValues = new StringBuilder("");
+        StringBuilder tableValues = new StringBuilder();
         for(String ignored : tableFields.split(",")){
             tableValues.append("?,");
         }
         tableValues.deleteCharAt(tableValues.length() - 1);
 
-        return String.format("INSERT INTO %s (%s) VALUE (%s)", tableTitle, tableFields, tableValues.toString());
+        return String.format("INSERT INTO %s (%s) VALUE (%s)", tableTitle, tableFields, tableValues);
     }
 
     public static void fromDatabase(ResultSet resultSet) {
@@ -174,20 +214,27 @@ public class Member {
                         Gender.valueOf(resultSet.getString("gender")),
                         resultSet.getDate("date_of_birth"),
                         resultSet.getString("mobile_number"),
-                        resultSet.getString("email")
+                        resultSet.getString("email"),
+                        new Group(resultSet.getString("group_id")),
+                        resultSet.getTimestamp("member_created"),
+                        resultSet.getTimestamp("member_updated")
                 );
-                member.setAssociatedGroup(new Group(resultSet.getString("group_id")));
-                member.setCreated(resultSet.getTimestamp("member_created"));
-                member.setUpdated(resultSet.getTimestamp("member_updated"));
-
                 memberRecords.add(member);
             }
 
         } catch (SQLException e) {
-            System.out.println(e);
             e.printStackTrace();
         }
     }
+
+//    @Override
+//    public String toString() {
+//        return String.format(
+//                "%s\t%s",
+//                memberID,
+//                (String.format("%s %s", firstName, lastName)));
+//    }
+
 
     @Override
     public String toString() {
@@ -196,12 +243,10 @@ public class Member {
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", gender=" + gender +
-                ", dateOfBirth=" + simpleDateFormat.format(dateOfBirth) +
+                ", dateOfBirth=" + dateOfBirth +
                 ", mobileNumber='" + mobileNumber + '\'' +
                 ", email='" + email + '\'' +
                 ", associatedGroup=" + associatedGroup +
-                ", created=" + created +
-                ", updated=" + updated +
                 '}';
     }
 }

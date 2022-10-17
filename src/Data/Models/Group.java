@@ -67,6 +67,29 @@ public class Group {
         this.updated = updated;
     }
 
+    public static Object[] getAvailableGroups() {
+        return groupRecords.toArray();
+    }
+
+    public static String generateGroupId() {
+        if (groupRecords.size() == 0) return "G-001";
+        var lastData = groupRecords.get(groupRecords.size() - 1);
+        String lastGroupID = lastData.getGroupId();
+        int newIndex = Integer.parseInt(lastGroupID.split("-")[1]) + 1;
+        return "G-" + String.format("%03d",newIndex);
+    }
+
+    public String getGroupMembersSql() {
+        var sqlStatement = String.format(
+                "SELECT %s FROM baraka_db.%s WHERE group_id = \"%s\";",
+                GroupMember.getTableFields(),
+                GroupMember.getTableName(),
+                this.getGroupId());
+
+        System.out.println(sqlStatement);
+        return sqlStatement;
+    }
+
     public String toSqlStatement() {
         StringBuilder tableValues = new StringBuilder("");
         for(String ignored : tableFields.split(",")){
@@ -98,9 +121,6 @@ public class Group {
 
     @Override
     public String toString() {
-        return "Group{" +
-                "groupId='" + groupId + '\'' +
-                ", groupName='" + groupName + '\'' +
-                '}';
+        return String.format("%s\t%s", groupId, groupName);
     }
 }

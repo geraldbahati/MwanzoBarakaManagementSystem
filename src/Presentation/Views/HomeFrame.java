@@ -1,63 +1,31 @@
 package Presentation.Views;
 
-import java.awt.EventQueue;
-
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
-
 import Data.Models.Member;
 import Presentation.Widgets.RoundedBorder;
 
-import javax.swing.JLabel;
-import java.awt.Font;
-import javax.swing.SpringLayout;
-import javax.swing.JComboBox;
-import java.awt.Color;
-import javax.swing.UIManager;
-import javax.swing.JButton;
-import java.awt.event.ActionListener;
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+
+import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.SystemColor;
-import javax.swing.SwingConstants;
-import javax.swing.JSplitPane;
-import javax.swing.JScrollPane;
-import javax.swing.ScrollPaneConstants;
-import java.awt.GridLayout;
-import javax.swing.JTextField;
-import javax.swing.JRadioButton;
-import javax.swing.JTextArea;
-import javax.swing.JFormattedTextField;
-import javax.swing.JTable;
-import javax.swing.JPasswordField;
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
-import javax.swing.JSeparator;
-import java.awt.Insets;
+import java.awt.event.ActionListener;
+import java.text.SimpleDateFormat;
 
 public class HomeFrame extends JFrame {
 
 	private JPanel contentPane;
 	private final JPanel titlePanel = new JPanel();
 
-	private Member currentMember;
+	private Member currentMember = Member.getActiveUser();
+	private final String pattern = "dd MMMM, yyyy";
+	private final SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
+	private JTable shareContributionRecordTable;
+	private DefaultTableCellRenderer cellRenderer;
 
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					HomeFrame frame = new HomeFrame();
-					frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
-
+	private static final String[] columnNames = { "Last Transaction Date", "Counter", "Monthly Contributed", "Total Shares"};
+	private static DefaultTableModel tableModel = new DefaultTableModel(columnNames,0);
 	/**
 	 * Create the frame.
 	 */
@@ -93,7 +61,7 @@ public class HomeFrame extends JFrame {
 		iBankingLabel.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
 		navigatorPanel.add(iBankingLabel);
 		
-		JComboBox comboBox = new JComboBox();
+		JComboBox<Object> comboBox = new JComboBox<>(Member.getMemberRecords());
 		sl_navigatorPanel.putConstraint(SpringLayout.NORTH, comboBox, 1, SpringLayout.NORTH, iBankingLabel);
 		sl_navigatorPanel.putConstraint(SpringLayout.EAST, comboBox, -215, SpringLayout.EAST, navigatorPanel);
 		comboBox.setBackground(new Color(254, 255, 255));
@@ -143,10 +111,10 @@ public class HomeFrame extends JFrame {
 		JPanel detailsPanel = new JPanel();
 		scrollPane.setViewportView(detailsPanel);
 		GridBagLayout gbl_detailsPanel = new GridBagLayout();
-		gbl_detailsPanel.columnWidths = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+		gbl_detailsPanel.columnWidths = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 		gbl_detailsPanel.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-		gbl_detailsPanel.columnWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
-		gbl_detailsPanel.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
+		gbl_detailsPanel.columnWeights = new double[]{0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
+		gbl_detailsPanel.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE};
 		detailsPanel.setLayout(gbl_detailsPanel);
 		
 		JLabel memberDetailHeaderLabel = new JLabel("Detail Information of Gerald Bahati");
@@ -165,7 +133,7 @@ public class HomeFrame extends JFrame {
 			}
 		});
 		GridBagConstraints gbc_editProfileButton = new GridBagConstraints();
-		gbc_editProfileButton.insets = new Insets(0, 0, 5, 5);
+		gbc_editProfileButton.insets = new Insets(0, 0, 5, 0);
 		gbc_editProfileButton.gridx = 9;
 		gbc_editProfileButton.gridy = 2;
 		detailsPanel.add(editProfileButton, gbc_editProfileButton);
@@ -188,12 +156,12 @@ public class HomeFrame extends JFrame {
 		gbc_memberIDLabel.gridy = 4;
 		detailsPanel.add(memberIDLabel, gbc_memberIDLabel);
 		
-		JLabel memberIDHolder = new JLabel("MM-001");
+		JLabel memberIDHolder = new JLabel(currentMember.getMemberID());
 		memberIDHolder.setFont(new Font("SansSerif", Font.PLAIN, 14));
 		GridBagConstraints gbc_memberIDHolder = new GridBagConstraints();
 		gbc_memberIDHolder.anchor = GridBagConstraints.WEST;
 		gbc_memberIDHolder.gridwidth = 5;
-		gbc_memberIDHolder.insets = new Insets(0, 0, 5, 5);
+		gbc_memberIDHolder.insets = new Insets(0, 0, 5, 0);
 		gbc_memberIDHolder.gridx = 5;
 		gbc_memberIDHolder.gridy = 4;
 		detailsPanel.add(memberIDHolder, gbc_memberIDHolder);
@@ -216,12 +184,12 @@ public class HomeFrame extends JFrame {
 		gbc_memberNameLabel.gridy = 6;
 		detailsPanel.add(memberNameLabel, gbc_memberNameLabel);
 		
-		JLabel memberNameHolder = new JLabel("Gerald Bahati");
+		JLabel memberNameHolder = new JLabel(String.format("%s %s",currentMember.getFirstName(),currentMember.getLastName()));
 		memberNameHolder.setFont(new Font("SansSerif", Font.PLAIN, 14));
 		GridBagConstraints gbc_memberNameHolder = new GridBagConstraints();
 		gbc_memberNameHolder.anchor = GridBagConstraints.WEST;
 		gbc_memberNameHolder.gridwidth = 5;
-		gbc_memberNameHolder.insets = new Insets(0, 0, 5, 5);
+		gbc_memberNameHolder.insets = new Insets(0, 0, 5, 0);
 		gbc_memberNameHolder.gridx = 5;
 		gbc_memberNameHolder.gridy = 6;
 		detailsPanel.add(memberNameHolder, gbc_memberNameHolder);
@@ -244,12 +212,12 @@ public class HomeFrame extends JFrame {
 		gbc_genderLabel.gridy = 8;
 		detailsPanel.add(genderLabel, gbc_genderLabel);
 		
-		JLabel genderHolder = new JLabel("Male");
+		JLabel genderHolder = new JLabel(currentMember.getGender());
 		genderHolder.setFont(new Font("SansSerif", Font.PLAIN, 14));
 		GridBagConstraints gbc_genderHolder = new GridBagConstraints();
 		gbc_genderHolder.anchor = GridBagConstraints.WEST;
 		gbc_genderHolder.gridwidth = 5;
-		gbc_genderHolder.insets = new Insets(0, 0, 5, 5);
+		gbc_genderHolder.insets = new Insets(0, 0, 5, 0);
 		gbc_genderHolder.gridx = 5;
 		gbc_genderHolder.gridy = 8;
 		detailsPanel.add(genderHolder, gbc_genderHolder);
@@ -272,12 +240,12 @@ public class HomeFrame extends JFrame {
 		gbc_DOBTitleLabel.gridy = 10;
 		detailsPanel.add(DOBTitleLabel, gbc_DOBTitleLabel);
 		
-		JLabel DOBHolder = new JLabel("13 Thur 2021");
+		JLabel DOBHolder = new JLabel(simpleDateFormat.format(currentMember.getDateOfBirth()));
 		DOBHolder.setFont(new Font("SansSerif", Font.PLAIN, 14));
 		GridBagConstraints gbc_DOBHolder = new GridBagConstraints();
 		gbc_DOBHolder.anchor = GridBagConstraints.WEST;
 		gbc_DOBHolder.gridwidth = 5;
-		gbc_DOBHolder.insets = new Insets(0, 0, 5, 5);
+		gbc_DOBHolder.insets = new Insets(0, 0, 5, 0);
 		gbc_DOBHolder.gridx = 5;
 		gbc_DOBHolder.gridy = 10;
 		detailsPanel.add(DOBHolder, gbc_DOBHolder);
@@ -300,12 +268,12 @@ public class HomeFrame extends JFrame {
 		gbc_ageLabel.gridy = 12;
 		detailsPanel.add(ageLabel, gbc_ageLabel);
 		
-		JLabel ageHolder = new JLabel("23");
+		JLabel ageHolder = new JLabel(String.valueOf(currentMember.getAge()));
 		ageHolder.setFont(new Font("SansSerif", Font.PLAIN, 14));
 		GridBagConstraints gbc_ageHolder = new GridBagConstraints();
 		gbc_ageHolder.anchor = GridBagConstraints.WEST;
 		gbc_ageHolder.gridwidth = 5;
-		gbc_ageHolder.insets = new Insets(0, 0, 5, 5);
+		gbc_ageHolder.insets = new Insets(0, 0, 5, 0);
 		gbc_ageHolder.gridx = 5;
 		gbc_ageHolder.gridy = 12;
 		detailsPanel.add(ageHolder, gbc_ageHolder);
@@ -328,24 +296,73 @@ public class HomeFrame extends JFrame {
 		gbc_dateOfJoinLabel.gridy = 14;
 		detailsPanel.add(dateOfJoinLabel, gbc_dateOfJoinLabel);
 		
-		JLabel dateOfJoinHolder = new JLabel("23 Mar 2922");
+		JLabel dateOfJoinHolder = new JLabel(simpleDateFormat.format(currentMember.getCreated()));
 		dateOfJoinHolder.setFont(new Font("SansSerif", Font.PLAIN, 14));
 		GridBagConstraints gbc_dateOfJoinHolder = new GridBagConstraints();
 		gbc_dateOfJoinHolder.anchor = GridBagConstraints.WEST;
 		gbc_dateOfJoinHolder.gridwidth = 5;
-		gbc_dateOfJoinHolder.insets = new Insets(0, 0, 5, 5);
+		gbc_dateOfJoinHolder.insets = new Insets(0, 0, 5, 0);
 		gbc_dateOfJoinHolder.gridx = 5;
 		gbc_dateOfJoinHolder.gridy = 14;
 		detailsPanel.add(dateOfJoinHolder, gbc_dateOfJoinHolder);
 		
+		Component horizontalStrut_4 = Box.createHorizontalStrut(20);
+		GridBagConstraints gbc_horizontalStrut_4 = new GridBagConstraints();
+		gbc_horizontalStrut_4.insets = new Insets(0, 0, 5, 5);
+		gbc_horizontalStrut_4.gridx = 0;
+		gbc_horizontalStrut_4.gridy = 15;
+		detailsPanel.add(horizontalStrut_4, gbc_horizontalStrut_4);
+		
+		Component horizontalStrut = Box.createHorizontalStrut(20);
+		GridBagConstraints gbc_horizontalStrut = new GridBagConstraints();
+		gbc_horizontalStrut.insets = new Insets(0, 0, 5, 5);
+		gbc_horizontalStrut.gridx = 2;
+		gbc_horizontalStrut.gridy = 15;
+		detailsPanel.add(horizontalStrut, gbc_horizontalStrut);
+		
+		Component verticalStrut = Box.createVerticalStrut(20);
+		GridBagConstraints gbc_verticalStrut = new GridBagConstraints();
+		gbc_verticalStrut.insets = new Insets(0, 0, 5, 5);
+		gbc_verticalStrut.gridx = 3;
+		gbc_verticalStrut.gridy = 15;
+		detailsPanel.add(verticalStrut, gbc_verticalStrut);
+		
+		Component horizontalStrut_1 = Box.createHorizontalStrut(20);
+		GridBagConstraints gbc_horizontalStrut_1 = new GridBagConstraints();
+		gbc_horizontalStrut_1.insets = new Insets(0, 0, 5, 5);
+		gbc_horizontalStrut_1.gridx = 4;
+		gbc_horizontalStrut_1.gridy = 15;
+		detailsPanel.add(horizontalStrut_1, gbc_horizontalStrut_1);
+		
 		JLabel sharesContributionTitleLabel = new JLabel("Shares Contribution by the Member");
 		sharesContributionTitleLabel.setFont(new Font("SansSerif", Font.BOLD, 20));
 		GridBagConstraints gbc_sharesContributionTitleLabel = new GridBagConstraints();
-		gbc_sharesContributionTitleLabel.insets = new Insets(0, 0, 5, 5);
+		gbc_sharesContributionTitleLabel.insets = new Insets(0, 0, 5, 0);
 		gbc_sharesContributionTitleLabel.gridwidth = 9;
 		gbc_sharesContributionTitleLabel.gridx = 1;
 		gbc_sharesContributionTitleLabel.gridy = 16;
 		detailsPanel.add(sharesContributionTitleLabel, gbc_sharesContributionTitleLabel);
+		
+		Component verticalStrut_1 = Box.createVerticalStrut(20);
+		GridBagConstraints gbc_verticalStrut_1 = new GridBagConstraints();
+		gbc_verticalStrut_1.insets = new Insets(0, 0, 5, 5);
+		gbc_verticalStrut_1.gridx = 3;
+		gbc_verticalStrut_1.gridy = 17;
+		detailsPanel.add(verticalStrut_1, gbc_verticalStrut_1);
+		
+		Component horizontalStrut_2 = Box.createHorizontalStrut(20);
+		GridBagConstraints gbc_horizontalStrut_2 = new GridBagConstraints();
+		gbc_horizontalStrut_2.insets = new Insets(0, 0, 5, 5);
+		gbc_horizontalStrut_2.gridx = 6;
+		gbc_horizontalStrut_2.gridy = 17;
+		detailsPanel.add(horizontalStrut_2, gbc_horizontalStrut_2);
+		
+		Component horizontalStrut_3 = Box.createHorizontalStrut(20);
+		GridBagConstraints gbc_horizontalStrut_3 = new GridBagConstraints();
+		gbc_horizontalStrut_3.insets = new Insets(0, 0, 5, 5);
+		gbc_horizontalStrut_3.gridx = 8;
+		gbc_horizontalStrut_3.gridy = 17;
+		detailsPanel.add(horizontalStrut_3, gbc_horizontalStrut_3);
 		
 		JLabel latestDateOfContTitleLabel = new JLabel("Last Transaction Date");
 		latestDateOfContTitleLabel.setFont(new Font("SansSerif", Font.PLAIN, 14));
@@ -365,7 +382,7 @@ public class HomeFrame extends JFrame {
 		gbc_counterTitleLabel.gridy = 18;
 		detailsPanel.add(counterTitleLabel, gbc_counterTitleLabel);
 		
-		JLabel amountTitleLabel = new JLabel("Monthly Contributed");
+		JLabel amountTitleLabel = new JLabel("Monthly Contribution");
 		amountTitleLabel.setFont(new Font("SansSerif", Font.PLAIN, 14));
 		GridBagConstraints gbc_amountTitleLabel = new GridBagConstraints();
 		gbc_amountTitleLabel.anchor = GridBagConstraints.WEST;
@@ -390,14 +407,34 @@ public class HomeFrame extends JFrame {
 		gbc_separator_6.gridx = 1;
 		gbc_separator_6.gridy = 19;
 		detailsPanel.add(separator_6, gbc_separator_6);
+
+		
+		shareContributionRecordTable = new JTable(tableModel);
+		
+		shareContributionRecordTable.getColumnModel().getColumn(0).setPreferredWidth(150);
+		shareContributionRecordTable.getColumnModel().getColumn(1).setPreferredWidth(50);
+		shareContributionRecordTable.getColumnModel().getColumn(2).setPreferredWidth(150);
+		shareContributionRecordTable.getColumnModel().getColumn(3).setPreferredWidth(150);
+
+		cellRenderer = new DefaultTableCellRenderer();
+		cellRenderer.setHorizontalAlignment(JLabel.CENTER);
+		shareContributionRecordTable.getColumnModel().getColumn(0).setCellRenderer(cellRenderer);
+
+		tableModel.addRow(new Object[] {12,4.345,5345,3});
+
+		shareContributionRecordTable.setOpaque(false);
+		GridBagConstraints gbc_shareContributionRecordTable = new GridBagConstraints();
+		gbc_shareContributionRecordTable.gridwidth = 7;
+		gbc_shareContributionRecordTable.insets = new Insets(0, 0, 0, 5);
+		gbc_shareContributionRecordTable.fill = GridBagConstraints.BOTH;
+		gbc_shareContributionRecordTable.gridx = 1;
+		gbc_shareContributionRecordTable.gridy = 20;
+		detailsPanel.add(shareContributionRecordTable, gbc_shareContributionRecordTable);
 		
 		JButton moreDetailsButton = new JButton("View Details");
 		GridBagConstraints gbc_moreDetailsButton = new GridBagConstraints();
-		gbc_moreDetailsButton.insets = new Insets(0, 0, 0, 5);
 		gbc_moreDetailsButton.gridx = 9;
 		gbc_moreDetailsButton.gridy = 20;
 		detailsPanel.add(moreDetailsButton, gbc_moreDetailsButton);
 	}
-
-
 }

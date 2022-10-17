@@ -1,7 +1,9 @@
 package Presentation.Views;
 
 import Data.Models.Enums.Gender;
+import Data.Models.Group;
 import Data.Models.Member;
+import Logic.GroupEvent;
 import Logic.MemberEvent;
 
 import javax.swing.*;
@@ -12,10 +14,13 @@ import java.sql.Date;
 
 
 public class RegisterFrame extends JFrame implements ActionListener {
+    private final MemberEvent memberEvent = new MemberEvent();
+    private final GroupEvent groupEvent = new GroupEvent();
+
     private final String pattern = "dd/MM/yyyy";
     private final SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
 
-
+    private static Group group = null;
     // Components of the Form
     private final Container formContainer;
     private final JLabel titleLabel;
@@ -45,7 +50,7 @@ public class RegisterFrame extends JFrame implements ActionListener {
     private final JTextField emailTextField;
     private final JCheckBox term;
     private final JButton submitButton;
-    private final JButton resetButton;
+    private final JButton joinGroupButton;
     private final JTextArea displayTextArea;
     private final JLabel feedbackLabel;
     private final JTextArea resultTextArea;
@@ -74,6 +79,10 @@ public class RegisterFrame extends JFrame implements ActionListener {
     // constructor, to initialize the components
     // with default values.
     public RegisterFrame() {
+
+        memberEvent.loadDataForDatabase("SELECT * FROM member");
+        groupEvent.loadDataForDatabase("SELECT * FROM baraka_db.group");
+
         this.setTitle("Registration Form");
         this.setBounds(300, 90, 900, 600);
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -94,7 +103,7 @@ public class RegisterFrame extends JFrame implements ActionListener {
         memberIdLabel.setLocation(100, 100);
         formContainer.add(memberIdLabel);
 
-        memberId = new JLabel("");
+        memberId = new JLabel(Member.generateMemberId());
         memberId.setFont(new Font("Arial", Font.PLAIN, 18));
         memberId.setSize(100, 20);
         memberId.setLocation(220, 100);
@@ -209,12 +218,12 @@ public class RegisterFrame extends JFrame implements ActionListener {
         submitButton.addActionListener(this);
         formContainer.add(submitButton);
 
-        resetButton = new JButton("Reset");
-        resetButton.setFont(new Font("Arial", Font.PLAIN, 15));
-        resetButton.setSize(100, 20);
-        resetButton.setLocation(270, 500);
-        resetButton.addActionListener(this);
-        formContainer.add(resetButton);
+        joinGroupButton = new JButton("Join Group");
+        joinGroupButton.setFont(new Font("Arial", Font.PLAIN, 15));
+        joinGroupButton.setSize(100, 20);
+        joinGroupButton.setLocation(270, 500);
+        joinGroupButton.addActionListener(this);
+        formContainer.add(joinGroupButton);
 
         displayTextArea = new JTextArea();
         displayTextArea.setFont(new Font("Arial", Font.PLAIN, 15));
@@ -263,9 +272,9 @@ public class RegisterFrame extends JFrame implements ActionListener {
             };
 
         if (correspondingMonthIndex == null) return null;
-        String stringDate =  (String) date.getSelectedItem()
+        String stringDate =  date.getSelectedItem()
         + "/" + correspondingMonthIndex
-        + "/" + (String) year.getSelectedItem();
+        + "/" + year.getSelectedItem();
         try {
             return new Date(simpleDateFormat.parse(stringDate).getTime());
         } catch (Exception e){
@@ -274,18 +283,32 @@ public class RegisterFrame extends JFrame implements ActionListener {
     }
 
     private void runHomePage() {
-        EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                try {
-                    HomeFrame frame = new HomeFrame();
-                    frame.setVisible(true);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+        EventQueue.invokeLater(() -> {
+            try {
+                HomeFrame frame = new HomeFrame();
+                frame.setVisible(true);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         });
         this.dispose();
     }
+
+    private void runJoinGroupPage() {
+        EventQueue.invokeLater(() -> {
+            try {
+                GroupFrame frame = new GroupFrame(memberId.getText());
+                frame.setVisible(true);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    public static void updateGroupStatus(Group selectedGroup) {
+        group = selectedGroup;
+    }
+
 
     // method actionPerformed()
     // to get the action performed
@@ -295,6 +318,7 @@ public class RegisterFrame extends JFrame implements ActionListener {
         if (e.getSource() == submitButton) {
             if (term.isSelected()) {
                 Gender gender = null;
+                final String memberID = memberId.getText();
                 final String firstName = firstNameTextField.getText();
                 final String lastName = lastNameTextField.getText();
                 final String mobileNumber = mobileNumberTextField.getText();
@@ -327,10 +351,24 @@ public class RegisterFrame extends JFrame implements ActionListener {
                 displayTextArea.setText(data + data1 + data2 + data3);
                 displayTextArea.setEditable(false);
 
-                var memberInstance = new Member("",firstName,lastName, gender, getMemberDOB(),mobileNumber,email);
+                var memberInstance = new Member(
+                        memberID,
+                        firstName,
+                        lastName,
+                        gender,
+                        getMemberDOB(),
+                        mobileNumber,
+                        email,
+                        group
+                        );
                 System.out.println(memberInstance);
                 System.out.println(memberInstance.toSqlStatement());
-                new MemberEvent().submitMemberToDatabase(memberInstance);
+                memberEvent.submitMemberToDatabase(memberInstance);
+
+                JOptionPane.showMessageDialog(null,
+                        "\tRegistration Successfully.." +
+                        "\n" +
+                                "Welcome to Mwanzo Baraka Management System");
                 runHomePage();
                 feedbackLabel.setText("Registration Successfully..");
             }
@@ -341,19 +379,8 @@ public class RegisterFrame extends JFrame implements ActionListener {
             }
         }
 
-        else if (e.getSource() == resetButton) {
-            String defaultValue = "";
-            firstNameTextField.setText(defaultValue);
-            lastNameTextField.setText(defaultValue);
-            emailTextField.setText(defaultValue);
-            mobileNumberTextField.setText(defaultValue);
-            feedbackLabel.setText(defaultValue);
-            displayTextArea.setText(defaultValue);
-            term.setSelected(false);
-            date.setSelectedIndex(0);
-            month.setSelectedIndex(0);
-            year.setSelectedIndex(0);
-            resultTextArea.setText(defaultValue);
+        else if (e.getSource() == joinGroupButton) {
+            runJoinGroupPage();
         }
     }
 }

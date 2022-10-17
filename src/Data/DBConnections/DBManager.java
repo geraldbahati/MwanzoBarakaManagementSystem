@@ -20,38 +20,8 @@ public class DBManager {
                     USER,
                     PASSWORD
             );
-//            resultSet.close();
-//            statement.close();
-//            connection.close();
-        }
-        catch (Exception exception) {
+        } catch (Exception exception) {
             throw new SQLFailedToConnect();
         }
     }
-
-//    public void loadData(String sqlQueryStatement)  {
-//       try {
-//           Statement statement;
-//           statement = connection.createStatement();
-//           ResultSet resultSet;
-//           resultSet = statement.executeQuery(sqlQueryStatement);
-//           int code;
-//           String title;
-//           while (resultSet.next()) {
-//               code = resultSet.getInt("code");
-//               title = resultSet.getString("title").trim();
-//               System.out.println("Code : " + code
-//                       + " Title : " + title);
-//           }
-//           resultSet.close();
-//           statement.close();
-//       } catch (Exception exception){
-//
-//       }
-//    }
-//
-//    public void closeConnection() throws SQLException {
-//        connection.close();
-//    }
-
 }

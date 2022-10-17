@@ -2,30 +2,31 @@ package Logic;
 
 import Data.Constants.CustomExceptions.SQLFailedToConnect;
 import Data.DBConnections.DBManager;
-import Data.Models.Member;
+import Data.Models.Group;
+import Data.Models.GroupMember;
 import Logic.CustomExceptions.InvalidFieldEnteredException;
 
 import java.sql.*;
 
-public class MemberEvent {
+public class GroupEvent {
     private Connection connection = null;
     private Statement statement = null;
     private ResultSet resultSet;
     private PreparedStatement preparedStatement = null;
 
-
-    public void loadDataForDatabase(String sqlQueryStatement) {
+    public void loadGroupMembers(Group groupSelected) {
         try {
             connection = new DBManager().connectToDB();
             statement = connection.createStatement();
-            resultSet = statement.executeQuery(sqlQueryStatement);
-            Member.fromDatabase(resultSet);
+            resultSet = statement.executeQuery(groupSelected.getGroupMembersSql());
+            GroupMember.fromDatabase(resultSet);
 
             resultSet.close();
             statement.close();
             connection.close();
 
         } catch (Exception exception){
+            System.out.println(exception.getMessage());
             exception.printStackTrace();
             try {
                 assert connection != null;
@@ -37,10 +38,34 @@ public class MemberEvent {
         }
     }
 
-    public void submitMemberToDatabase(Member member) {
+    public void loadDataForDatabase(String sqlQueryStatement) {
         try {
             connection = new DBManager().connectToDB();
-            sendMemberDataToDatabase(member);
+            statement = connection.createStatement();
+            resultSet = statement.executeQuery(sqlQueryStatement);
+            Group.fromDatabase(resultSet);
+
+            resultSet.close();
+            statement.close();
+            connection.close();
+
+        } catch (Exception exception){
+            System.out.println(exception.getMessage());
+            exception.printStackTrace();
+            try {
+                assert connection != null;
+                connection.close();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+
+        }
+    }
+
+    public void submitGroupToDatabase(Group group) {
+        try {
+            connection = new DBManager().connectToDB();
+            sendGroupDataToDatabase(group);
 
         } catch (SQLFailedToConnect sql){
             sql.printStackTrace();
@@ -57,23 +82,14 @@ public class MemberEvent {
 
     }
 
-    public void getCurrentMember() {
-
-    }
-
-    private void sendMemberDataToDatabase(Member member) throws InvalidFieldEnteredException {
+    private void sendGroupDataToDatabase(Group group) throws InvalidFieldEnteredException {
         try {
             if(connection!=null){
-                preparedStatement = connection.prepareStatement(member.toSqlStatement());
-                preparedStatement.setString (1,member.getMemberID());
-                preparedStatement.setString (2, member.getFirstName());
-                preparedStatement.setString(3,member.getLastName());
-                preparedStatement.setString(4,member.getGender());
-                preparedStatement.setDate(5, member.getDateOfBirth());
-                preparedStatement.setString(6,member.getMobileNumber());
-                preparedStatement.setString(7,member.getEmail());
-                preparedStatement.setTimestamp(8,member.getCreated());
-                preparedStatement.setTimestamp(9,member.getUpdated());
+                preparedStatement = connection.prepareStatement(group.toSqlStatement());
+                preparedStatement.setString (1,group.getGroupId());
+                preparedStatement.setString (2, group.getGroupName());
+                preparedStatement.setTimestamp(3,group.getCreated());
+                preparedStatement.setTimestamp(4,group.getUpdated());
 
                 preparedStatement.execute();
                 connection.close();

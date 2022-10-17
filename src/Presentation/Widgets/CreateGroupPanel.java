@@ -9,6 +9,8 @@ import java.awt.Insets;
 import javax.swing.JTextField;
 import javax.swing.JList;
 import javax.swing.JButton;
+import javax.swing.border.MatteBorder;
+import java.awt.Color;
 
 public class CreateGroupPanel extends JPanel {
 	private JTextField groupNameTextField;
@@ -30,47 +32,27 @@ public class CreateGroupPanel extends JPanel {
 		JPanel formPanel = new JPanel();
 		formPanel.setBounds(6, 63, 389, 188);
 		add(formPanel);
-		GridBagLayout gbl_formPanel = new GridBagLayout();
-		gbl_formPanel.columnWidths = new int[]{0, 0, 0, 0, 0, 0, 0, 0};
-		gbl_formPanel.rowHeights = new int[]{0, 0, 0, 0, 0};
-		gbl_formPanel.columnWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE};
-		gbl_formPanel.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
-		formPanel.setLayout(gbl_formPanel);
+		formPanel.setLayout(null);
 		
 		JLabel groupIDLabel = new JLabel("Group ID");
+		groupIDLabel.setBounds(60, 30, 64, 19);
 		groupIDLabel.setFont(new Font("SansSerif", Font.PLAIN, 15));
-		GridBagConstraints gbc_groupIDLabel = new GridBagConstraints();
-		gbc_groupIDLabel.anchor = GridBagConstraints.WEST;
-		gbc_groupIDLabel.insets = new Insets(0, 0, 5, 5);
-		gbc_groupIDLabel.gridx = 2;
-		gbc_groupIDLabel.gridy = 1;
-		formPanel.add(groupIDLabel, gbc_groupIDLabel);
+		formPanel.add(groupIDLabel);
 		
 		JLabel GroupIDGeneratedLabel = new JLabel("New label");
+		GroupIDGeneratedLabel.setBounds(215, 30, 69, 19);
 		GroupIDGeneratedLabel.setFont(new Font("SansSerif", Font.PLAIN, 15));
-		GridBagConstraints gbc_GroupIDGeneratedLabel = new GridBagConstraints();
-		gbc_GroupIDGeneratedLabel.anchor = GridBagConstraints.WEST;
-		gbc_GroupIDGeneratedLabel.insets = new Insets(0, 0, 5, 5);
-		gbc_GroupIDGeneratedLabel.gridx = 5;
-		gbc_GroupIDGeneratedLabel.gridy = 1;
-		formPanel.add(GroupIDGeneratedLabel, gbc_GroupIDGeneratedLabel);
+		formPanel.add(GroupIDGeneratedLabel);
 		
 		JLabel groupNameLabel = new JLabel("Group Name");
+		groupNameLabel.setBounds(60, 87, 90, 19);
 		groupNameLabel.setFont(new Font("SansSerif", Font.PLAIN, 15));
-		GridBagConstraints gbc_groupNameLabel = new GridBagConstraints();
-		gbc_groupNameLabel.anchor = GridBagConstraints.WEST;
-		gbc_groupNameLabel.insets = new Insets(0, 0, 0, 5);
-		gbc_groupNameLabel.gridx = 2;
-		gbc_groupNameLabel.gridy = 3;
-		formPanel.add(groupNameLabel, gbc_groupNameLabel);
+		formPanel.add(groupNameLabel);
 		
 		groupNameTextField = new JTextField();
-		GridBagConstraints gbc_groupNameTextField = new GridBagConstraints();
-		gbc_groupNameTextField.gridwidth = 2;
-		gbc_groupNameTextField.fill = GridBagConstraints.HORIZONTAL;
-		gbc_groupNameTextField.gridx = 5;
-		gbc_groupNameTextField.gridy = 3;
-		formPanel.add(groupNameTextField, gbc_groupNameTextField);
+		groupNameTextField.setBorder(new MatteBorder(560020, 1, 0, 0, (Color) new Color(255, 255, 255)));
+		groupNameTextField.setBounds(215, 84, 174, 26);
+		formPanel.add(groupNameTextField);
 		groupNameTextField.setColumns(10);
 		
 		JPanel addMemberPanel = new JPanel();
@@ -79,12 +61,12 @@ public class CreateGroupPanel extends JPanel {
 		addMemberPanel.setLayout(null);
 		
 		JList memberListDetail = new JList();
-		memberListDetail.setBounds(6, 63, 226, 159);
+		memberListDetail.setBounds(6, 63, 226, 176);
 		addMemberPanel.add(memberListDetail);
 		
-		JLabel addMemberLabel = new JLabel("Add Members");
+		JLabel addMemberLabel = new JLabel("Added Members");
 		addMemberLabel.setFont(new Font("SansSerif", Font.BOLD | Font.ITALIC, 18));
-		addMemberLabel.setBounds(18, 24, 141, 16);
+		addMemberLabel.setBounds(18, 24, 165, 16);
 		addMemberPanel.add(addMemberLabel);
 		
 		JPanel buttonPanel = new JPanel();

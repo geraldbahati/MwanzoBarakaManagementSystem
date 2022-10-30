@@ -57,8 +57,23 @@ public class MemberEvent {
 
     }
 
-    public void getCurrentMember() {
+    public void submitRegistrationFee(Member member) {
+        try {
+            connection = new DBManager().connectToDB();
+            sendRegistrationFeeToDatabase(member);
 
+        } catch (SQLFailedToConnect sql){
+            sql.printStackTrace();
+            System.out.println("Sql Failure");
+        } catch (InvalidFieldEnteredException e){
+            try {
+                connection.close();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+            e.printStackTrace();
+            System.out.println("Invalid data");
+        }
     }
 
     private void sendMemberDataToDatabase(Member member) throws InvalidFieldEnteredException {
@@ -72,8 +87,28 @@ public class MemberEvent {
                 preparedStatement.setDate(5, member.getDateOfBirth());
                 preparedStatement.setString(6,member.getMobileNumber());
                 preparedStatement.setString(7,member.getEmail());
-                preparedStatement.setTimestamp(8,member.getCreated());
-                preparedStatement.setTimestamp(9,member.getUpdated());
+                preparedStatement.setString(8,(member.getAssociatedGroup() == null)?null : member.getAssociatedGroup().getGroupId());
+                preparedStatement.setTimestamp(9,member.getCreated());
+                preparedStatement.setTimestamp(10,member.getUpdated());
+
+                preparedStatement.execute();
+                connection.close();
+            }
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            throw new InvalidFieldEnteredException();
+        }
+    }
+
+    private void sendRegistrationFeeToDatabase(Member member) throws InvalidFieldEnteredException {
+        try {
+            if(connection!=null){
+                preparedStatement = connection.prepareStatement(member.getRegistrationSQL());
+                preparedStatement.setString (1,member.getMemberID());
+                preparedStatement.setDouble(2, Member.getRegistrationFee());
+                preparedStatement.setTimestamp(3,member.getCreated());
+                preparedStatement.setTimestamp(4,member.getUpdated());
 
                 preparedStatement.execute();
                 connection.close();

@@ -14,7 +14,9 @@ import java.util.ArrayList;
 
 public class Member {
     private static final String tableTitle = "member";
-    private static final ArrayList<Member> memberRecords = new ArrayList<>();
+    private static final String registrationFeeTableName = "member_registration";
+    private static ArrayList<Member> memberRecords = new ArrayList<>();
+    private static final ArrayList<Member> createdMemberInstances = new ArrayList<>();
     private static final String tableFields =
         "member_id, " +
         "first_name, " +
@@ -23,10 +25,19 @@ public class Member {
         "date_of_birth, " +
         "mobile_number, " +
         "email, " +
+        "group_id, " +
         "member_created, " +
         "member_updated";
+
+    private static final String registrationFields =
+            "member_id, " +
+            "registration_fee, " +
+            "instance_created, " +
+            "instance_updated";
+
     private static final String pattern = "MM/dd/yyyy";
     private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
+    private static final double registrationFee = 3000.00;
 
     private String memberID;
     private String firstName;
@@ -62,6 +73,7 @@ public class Member {
         setAssociatedGroup(associatedGroup);
 
         memberRecords.add(this);
+        createdMemberInstances.add(this);
     }
 
     public Member(String memberID,
@@ -84,6 +96,10 @@ public class Member {
         this.associatedGroup = associatedGroup;
         this.created = created;
         this.updated = updated;
+    }
+
+    public static double getRegistrationFee() {
+        return registrationFee;
     }
 
     public String getMemberID() {
@@ -183,6 +199,10 @@ public class Member {
         return memberRecords.toArray();
     }
 
+    public static ArrayList<Member> getCreatedMemberRecords() {
+        return createdMemberInstances;
+    }
+
     public static Member getActiveUser(){
         return memberRecords.get( memberRecords.size() - 1);
     }
@@ -194,6 +214,17 @@ public class Member {
         int newIndex = Integer.parseInt(lastMemberID.split("-")[1]) + 1;
         return "M-" + String.format("%03d",newIndex);
     }
+
+    public String getRegistrationSQL() {
+        StringBuilder tableValues = new StringBuilder();
+        for(String ignored : registrationFields.split(",")){
+            tableValues.append("?,");
+        }
+        tableValues.deleteCharAt(tableValues.length() - 1);
+
+        return String.format("INSERT INTO %s (%s) VALUE (%s)", registrationFeeTableName, registrationFields, tableValues);
+    }
+
     public String toSqlStatement() {
         StringBuilder tableValues = new StringBuilder();
         for(String ignored : tableFields.split(",")){
@@ -205,6 +236,7 @@ public class Member {
     }
 
     public static void fromDatabase(ResultSet resultSet) {
+        memberRecords = new ArrayList<>();
         try {
             while (resultSet.next()) {
                 var member = new Member(
@@ -227,26 +259,26 @@ public class Member {
         }
     }
 
-//    @Override
-//    public String toString() {
-//        return String.format(
-//                "%s\t%s",
-//                memberID,
-//                (String.format("%s %s", firstName, lastName)));
-//    }
-
-
     @Override
     public String toString() {
-        return "Member{" +
-                "memberID='" + memberID + '\'' +
-                ", firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", gender=" + gender +
-                ", dateOfBirth=" + dateOfBirth +
-                ", mobileNumber='" + mobileNumber + '\'' +
-                ", email='" + email + '\'' +
-                ", associatedGroup=" + associatedGroup +
-                '}';
+        return String.format(
+                "%s\t%s",
+                memberID,
+                (String.format("%s %s", firstName, lastName)));
     }
+
+//
+//    @Override
+//    public String toString() {
+//        return "Member{" +
+//                "memberID='" + memberID + '\'' +
+//                ", firstName='" + firstName + '\'' +
+//                ", lastName='" + lastName + '\'' +
+//                ", gender=" + gender +
+//                ", dateOfBirth=" + dateOfBirth +
+//                ", mobileNumber='" + mobileNumber + '\'' +
+//                ", email='" + email + '\'' +
+//                ", associatedGroup=" + associatedGroup +
+//                '}';
+//    }
 }

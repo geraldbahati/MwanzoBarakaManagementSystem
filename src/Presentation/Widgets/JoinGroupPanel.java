@@ -3,6 +3,7 @@ package Presentation.Widgets;
 import Data.Models.Group;
 import Data.Models.GroupMember;
 import Logic.GroupEvent;
+import Presentation.Views.GroupFrame;
 import Presentation.Views.RegisterFrame;
 
 import javax.swing.*;
@@ -108,14 +109,12 @@ public class JoinGroupPanel extends JPanel implements ActionListener {
 		gbc_fullNameLabel.gridy = 3;
 		memberInGroupPanel.add(fullNameLabel, gbc_fullNameLabel);
 		
-		JSeparator separator = new JSeparator();
-		GridBagConstraints gbc_separator = new GridBagConstraints();
-		gbc_separator.fill = GridBagConstraints.HORIZONTAL;
-		gbc_separator.gridwidth = 4;
-		gbc_separator.insets = new Insets(0, 0, 5, 5);
-		gbc_separator.gridx = 1;
-		gbc_separator.gridy = 4;
-		memberInGroupPanel.add(separator, gbc_separator);
+		Component verticalStrut_3 = Box.createVerticalStrut(20);
+		GridBagConstraints gbc_verticalStrut_3 = new GridBagConstraints();
+		gbc_verticalStrut_3.insets = new Insets(0, 0, 5, 5);
+		gbc_verticalStrut_3.gridx = 1;
+		gbc_verticalStrut_3.gridy = 4;
+		memberInGroupPanel.add(verticalStrut_3, gbc_verticalStrut_3);
 		
 		JPanel groupDetailsPanel = new JPanel();
 		groupDetailsPanel.setBounds(6, 129, 340, 188);
@@ -249,6 +248,7 @@ public class JoinGroupPanel extends JPanel implements ActionListener {
 		joinGroupButton.addActionListener(e -> {
 			if (comboBox.getSelectedItem() == null) return;
 			RegisterFrame.updateGroupStatus((Group) comboBox.getSelectedItem());
+			GroupFrame.disposeWindow();
 		});
 		submitPanel.add(joinGroupButton);
 		

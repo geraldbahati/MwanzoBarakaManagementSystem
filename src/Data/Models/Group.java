@@ -2,18 +2,27 @@ package Data.Models;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLOutput;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
 
 public class Group {
-    private static final String tableTitle = "group";
+    private static final String tableTitle = "baraka_db.group";
+    private static final String registrationFeeTableName = "group_registration_fee";
     private static final ArrayList<Group> groupRecords = new ArrayList<>();
     private static final String tableFields =
             "group_id, " +
             "group_name, " +
             "instance_created, " +
             "instance_updated";
+
+    private static final String registrationFields =
+            "group_id, " +
+            "registration_fee, " +
+            "instance_created, " +
+            "instance_updated";
+    private static final double registrationFee = 5000.00;
 
     private String groupId;
     private String groupName = "";
@@ -31,6 +40,10 @@ public class Group {
 
         setGroupId(groupId);
         setGroupName(groupName);
+    }
+
+    public static double getRegistrationFee() {
+        return registrationFee;
     }
 
     public String getGroupId() {
@@ -79,6 +92,16 @@ public class Group {
         return "G-" + String.format("%03d",newIndex);
     }
 
+    public String getRegistrationSQL() {
+        StringBuilder tableValues = new StringBuilder();
+        for(String ignored : registrationFields.split(",")){
+            tableValues.append("?,");
+        }
+        tableValues.deleteCharAt(tableValues.length() - 1);
+
+        return String.format("INSERT INTO %s (%s) VALUE (%s)", registrationFeeTableName, registrationFields, tableValues);
+    }
+
     public String getGroupMembersSql() {
         var sqlStatement = String.format(
                 "SELECT %s FROM baraka_db.%s WHERE group_id = \"%s\";",
@@ -91,13 +114,13 @@ public class Group {
     }
 
     public String toSqlStatement() {
-        StringBuilder tableValues = new StringBuilder("");
+        StringBuilder tableValues = new StringBuilder();
         for(String ignored : tableFields.split(",")){
             tableValues.append("?,");
         }
         tableValues.deleteCharAt(tableValues.length() - 1);
 
-        return String.format("INSERT INTO %s (%s) VALUE (%s)", tableTitle, tableFields, tableValues.toString());
+        return String.format("INSERT INTO %s (%s) VALUE (%s)", tableTitle, tableFields, tableValues);
     }
 
     public static void fromDatabase(ResultSet resultSet) {

@@ -1,49 +1,49 @@
 package Presentation.Views;
 
+import Data.Models.Member;
 import Presentation.Widgets.CreateGroupPanel;
 import Presentation.Widgets.JoinGroupPanel;
 
-import java.awt.EventQueue;
+import java.awt.*;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JMenuBar;
-import java.awt.Color;
 import javax.swing.JMenu;
-import java.awt.FlowLayout;
 import javax.swing.JLabel;
 import javax.swing.JButton;
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
 import javax.swing.JScrollPane;
 import javax.swing.JComboBox;
-import java.awt.Font;
 import javax.swing.JTabbedPane;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
 public class GroupFrame extends JFrame {
+	private static GroupFrame frame;
 
 	private JPanel contentPane;
-	private String activeMemberID = "";
 	
 	private int activePanelIndex = 1;
+	private static Member activeUser = null;
+
 
 	private final CreateGroupPanel createGroupPanel;
 	private final JoinGroupPanel joinGroupPanel;
 	/**
 	 * Create the frame.
 	 */
-	public GroupFrame(String activeMemberID) {
-		this.activeMemberID = activeMemberID;
+	public GroupFrame(Member host) {
+		frame = this;
+		activeUser = host;
 
 		createGroupPanel  = new CreateGroupPanel();
 
 		joinGroupPanel = new JoinGroupPanel();
 
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 734, 525);
+		setSize(new Dimension( 734, 525));
+		setLocationRelativeTo(null);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 
@@ -88,5 +88,13 @@ public class GroupFrame extends JFrame {
 		});
 		createGroupButton.setBounds(500, 6, 117, 29);
 		navigationPanel.add(createGroupButton);
+	}
+
+	public static Member getActiveUser() {
+		return activeUser;
+	}
+
+	public static void disposeWindow() {
+		frame.dispose();
 	}
 }

@@ -1,10 +1,16 @@
 package Presentation.Widgets;
 
+import Data.Models.Member;
+import Data.Models.Shares;
+import Logic.MemberEvent;
+import Logic.SharesEvent;
 import Presentation.Views.ContributeFrame;
+import Presentation.Views.SharesReportFrame;
 
 import javax.swing.*;
 import javax.swing.border.AbstractBorder;
 import java.awt.*;
+import java.text.DecimalFormat;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
@@ -16,10 +22,29 @@ public class SharesPanel extends JPanel {
 	ImageIcon loanIconImage = new ImageIcon(new ImageIcon("/Users/geraldbahati/Desktop/programming/MwanzoBarakaManagementSystem/src/Data/Utilities/loan.png")
 			.getImage()
 			.getScaledInstance(25, 25, Image.SCALE_DEFAULT));
+
+
+	private final SharesEvent sharesEvent = new SharesEvent();
+
+	private Member activeMember = null;
+
+	private final JLabel shareBalanceLabel;
+	private final DecimalFormat formatter = new DecimalFormat("#,###.00");
+
+	private void initState() {
+		activeMember = MemberEvent.getMember();
+		sharesEvent.loadDataForDatabase(
+				String.format(
+						"SELECT * FROM baraka_db.shares_contribution WHERE member_id = \"%s\";",
+						activeMember.getMemberID()
+				)
+		);
+	}
 	/**
 	 * Create the panel.
 	 */
 	public SharesPanel() {
+		initState();
 		setLayout(null);
 
 		JPanel balanceDetailsPanel = new JPanel();
@@ -73,7 +98,7 @@ public class SharesPanel extends JPanel {
 		gbc_verticalStrut_1.gridy = 2;
 		balanceDetailsPanel.add(verticalStrut_1, gbc_verticalStrut_1);
 		
-		JLabel shareBalanceLabel = new JLabel("Ksh. 12,3435.55");
+		shareBalanceLabel = new JLabel(calculateTotalShares());
 		shareBalanceLabel.setForeground(new Color(53, 84, 212));
 		shareBalanceLabel.setFont(new Font("Noto Sans Kannada", Font.PLAIN, 24));
 		GridBagConstraints gbc_shareBalanceLabel = new GridBagConstraints();
@@ -83,6 +108,13 @@ public class SharesPanel extends JPanel {
 		gbc_shareBalanceLabel.gridx = 1;
 		gbc_shareBalanceLabel.gridy = 3;
 		balanceDetailsPanel.add(shareBalanceLabel, gbc_shareBalanceLabel);
+		
+		Component verticalStrut_6 = Box.createVerticalStrut(20);
+		GridBagConstraints gbc_verticalStrut_6 = new GridBagConstraints();
+		gbc_verticalStrut_6.insets = new Insets(0, 0, 5, 5);
+		gbc_verticalStrut_6.gridx = 0;
+		gbc_verticalStrut_6.gridy = 4;
+		balanceDetailsPanel.add(verticalStrut_6, gbc_verticalStrut_6);
 		
 		JLabel incomeTitleLabel = new JLabel("Income");
 		incomeTitleLabel.setForeground(SystemColor.windowBorder);
@@ -235,6 +267,7 @@ public class SharesPanel extends JPanel {
 		panel.add(latestTransactionLabel, gbc_latestTransactionLabel);
 		
 		JButton viewButton = new JButton("View all");
+		viewButton.addActionListener(e -> openSharesReport());
 		GridBagConstraints gbc_viewButton = new GridBagConstraints();
 		gbc_viewButton.insets = new Insets(0, 0, 5, 5);
 		gbc_viewButton.gridx = 6;
@@ -302,21 +335,46 @@ public class SharesPanel extends JPanel {
 		add(panel_1);
 		
 		JButton contributeButton = new JButton("Contribute");
-		contributeButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				EventQueue.invokeLater(new Runnable() {
-					public void run() {
-						try {
-							ContributeFrame frame = new ContributeFrame();
-							frame.setVisible(true);
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
-					}
-				});
+		contributeButton.addActionListener(e -> EventQueue.invokeLater(() -> {
+			try {
+				ContributeFrame frame = new ContributeFrame(this);
+				frame.setVisible(true);
+			} catch (Exception e1) {
+				e1.printStackTrace();
 			}
-		});
+		}));
 		panel_1.add(contributeButton);
 
+	}
+
+	public void updateStatus() {
+		sharesEvent.loadDataForDatabase(
+				String.format(
+						"SELECT * FROM baraka_db.shares_contribution WHERE member_id = \"%s\";",
+						activeMember.getMemberID()
+				)
+		);
+		shareBalanceLabel.setText(calculateTotalShares());
+	}
+
+	private String calculateTotalShares() {
+		var shares = Shares.getMemberShares();
+		double totalShares = 0;
+
+		for (Shares share : shares) {
+			totalShares+=share.getAmountContributed();
+		}
+		return "Ksh. "+ formatter.format(totalShares);
+	}
+
+	private void openSharesReport() {
+		EventQueue.invokeLater(() -> {
+			try {
+				SharesReportFrame frame = new SharesReportFrame();
+				frame.setVisible(true);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		});
 	}
 }

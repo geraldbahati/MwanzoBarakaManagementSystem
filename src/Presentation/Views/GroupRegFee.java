@@ -122,11 +122,11 @@ public class GroupRegFee extends JFrame {
 
 		var groupMembers = Member.getCreatedMemberRecords();
 
-		for (Object member : groupMembers) {
-			memberEvent.submitMemberToDatabase((Member) member);
+		for (Member member : groupMembers) {
+			memberEvent.submitMemberToDatabase(member);
 		}
 
-
+		MemberEvent.setMember(groupMembers.get(0));
 		GroupFrame.disposeWindow();
 		runHomePage();
 	}

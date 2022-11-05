@@ -10,13 +10,14 @@ import javax.swing.JButton;
 import javax.swing.JSeparator;
 
 import Data.Models.Member;
+import Logic.MemberEvent;
 
 import java.awt.Component;
 import java.text.SimpleDateFormat;
 import javax.swing.Box;
 
 public class HomePanel extends JPanel {
-	private Member currentMember = Member.getActiveUser();
+	private Member currentMember = MemberEvent.getMember();
 	private final String pattern = "dd MMMM, yyyy";
 	private final SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
 

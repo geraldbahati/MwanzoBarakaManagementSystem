@@ -2,6 +2,8 @@ package Data.Models;
 
 import Data.Models.Enums.Gender;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -12,8 +14,11 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.ArrayList;
 
-public class Member {
-    private static final String tableTitle = "member";
+public class Member implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
+	private static final String tableTitle = "member";
     private static final String registrationFeeTableName = "member_registration";
     private static ArrayList<Member> memberRecords = new ArrayList<>();
     private static final ArrayList<Member> createdMemberInstances = new ArrayList<>();
@@ -49,6 +54,8 @@ public class Member {
     private Group associatedGroup = null;
     private Timestamp created;
     private Timestamp updated;
+
+    public Member() {}
 
     public Member(
             String memberID,
@@ -195,16 +202,12 @@ public class Member {
         this.gender = gender;
     }
 
-    public static Object[] getMemberRecords() {
-        return memberRecords.toArray();
+    public static ArrayList<Member> getMemberRecords() {
+        return memberRecords;
     }
 
     public static ArrayList<Member> getCreatedMemberRecords() {
         return createdMemberInstances;
-    }
-
-    public static Member getActiveUser(){
-        return memberRecords.get( memberRecords.size() - 1);
     }
 
     public static String generateMemberId() {

@@ -8,11 +8,23 @@ import Logic.CustomExceptions.InvalidFieldEnteredException;
 import java.sql.*;
 
 public class MemberEvent {
+    private static Member member = null;
+
+    private static final SaveLoadEvent SAVE_LOAD_EVENT = new SaveLoadEvent();
+
     private Connection connection = null;
     private Statement statement = null;
     private ResultSet resultSet;
     private PreparedStatement preparedStatement = null;
 
+    public static Member getMember() {
+        return member;
+    }
+
+    public static void setMember(Member activeMember) {
+        member = activeMember;
+        SAVE_LOAD_EVENT.saveMember(member);
+    }
 
     public void loadDataForDatabase(String sqlQueryStatement) {
         try {

@@ -1,5 +1,11 @@
 package Presentation.Views;
 
+import Data.Models.Member;
+import Data.Models.Shares;
+import Logic.MemberEvent;
+import Logic.SharesEvent;
+import Presentation.Widgets.SharesPanel;
+
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
@@ -13,20 +19,36 @@ import javax.swing.SpringLayout;
 import javax.swing.JTextField;
 import javax.swing.JButton;
 import java.awt.SystemColor;
+import java.text.DecimalFormat;
+import java.time.LocalDate;
+import java.time.Month;
+import java.util.Objects;
 
 public class ContributeFrame extends JFrame {
 
 	private JPanel contentPane;
-	private JTextField textField;
+	private final JTextField amountEntered;
 
-	/**
-	 * Launch the application.
-	 */
+	private final SharesEvent sharesEvent = new SharesEvent();
+	private Member activeMember = null;
 
+	private final DecimalFormat formatter = new DecimalFormat("#,###.00");
+
+	private void initState() {
+		activeMember = MemberEvent.getMember();
+		var sqlStatement = String.format(
+				"SELECT * FROM baraka_db.shares_contribution WHERE member_id = \"%s\" AND  monthname(instance_created)='%s';",
+				activeMember.getMemberID(),
+				getCurrentMonth()
+		);
+		sharesEvent.loadDataForDatabase(sqlStatement);
+	}
 	/**
 	 * Create the frame.
 	 */
-	public ContributeFrame() {
+	public ContributeFrame(SharesPanel sharesPanel) {
+		initState();
+
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setSize(524, 230);
 		setLocationRelativeTo(null);
@@ -45,7 +67,7 @@ public class ContributeFrame extends JFrame {
 		detailLabel.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, 24));
 		amountDisplayPanel.add(detailLabel);
 		
-		JLabel monthContLabel = new JLabel("Ksh. 1,200");
+		JLabel monthContLabel = new JLabel(calculateMonthShares());
 		monthContLabel.setForeground(SystemColor.textHighlight);
 		monthContLabel.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, 24));
 		amountDisplayPanel.add(monthContLabel);
@@ -60,10 +82,10 @@ public class ContributeFrame extends JFrame {
 		lblNewLabel.setBounds(115, 36, 130, 21);
 		formPanel.add(lblNewLabel);
 		
-		textField = new JTextField();
-		textField.setBounds(279, 22, 196, 42);
-		formPanel.add(textField);
-		textField.setColumns(10);
+		amountEntered = new JTextField();
+		amountEntered.setBounds(279, 22, 196, 42);
+		formPanel.add(amountEntered);
+		amountEntered.setColumns(10);
 		
 		JPanel panel = new JPanel();
 		panel.setBounds(5, 147, 512, 49);
@@ -73,6 +95,39 @@ public class ContributeFrame extends JFrame {
 		panel.add(cancelButton);
 		
 		JButton applyButton = new JButton("Apply");
+		applyButton.addActionListener(e -> {
+			if (Objects.equals(amountEntered.getText(), "") || activeMember == null) return;
+
+			double amountContributed = Double.parseDouble(amountEntered.getText());
+			var share = new Shares(
+					sharesEvent.generateSharesId(),
+					activeMember.getMemberID(),
+					amountContributed
+			);
+			submitShares(share);
+			dispose();
+			sharesPanel.updateStatus();
+		});
 		panel.add(applyButton);
+	}
+
+	private String getCurrentMonth() {
+		LocalDate currentDate = LocalDate.now();
+		Month currentMonth = currentDate.getMonth();
+		return currentMonth.toString();
+	}
+
+	private String calculateMonthShares() {
+		var shares = Shares.getMemberShares();
+		double totalShares = 0;
+
+		for (Shares share : shares) {
+			totalShares+=share.getAmountContributed();
+		}
+		return "Ksh. "+ formatter.format(totalShares);
+	}
+
+	private void submitShares(Shares shares) {
+		sharesEvent.submitContributionToDatabase(shares);
 	}
 }

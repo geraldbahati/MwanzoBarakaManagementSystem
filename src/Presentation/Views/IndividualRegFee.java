@@ -5,16 +5,12 @@ import Logic.MemberEvent;
 import Presentation.Widgets.TextBubbleBorder;
 
 import java.awt.*;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.swing.JFrame;
-import javax.swing.JPanel;
+import javax.swing.*;
 import javax.swing.border.AbstractBorder;
 import javax.swing.border.EmptyBorder;
-import javax.swing.JLabel;
-import javax.swing.JSeparator;
-import javax.swing.JTextArea;
-import javax.swing.JButton;
-import javax.swing.Box;
 
 public class IndividualRegFee extends JFrame {
 
@@ -116,14 +112,15 @@ public class IndividualRegFee extends JFrame {
 		payButton.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
 		payButton.addActionListener(e -> {
 			registerMember();
-			runHomePage();
 		});
 		buttonsPanel.add(payButton);
 	}
 
 	private void registerMember() {
+		showLoadingScreen();
 		memberEvent.submitMemberToDatabase(registeringMember);
 		memberEvent.submitRegistrationFee(registeringMember);
+		MemberEvent.setMember(registeringMember);
 	}
 
 	private void runHomePage() {
@@ -138,4 +135,60 @@ public class IndividualRegFee extends JFrame {
 		});
 		this.dispose();
 	}
+
+	private void showLoadingScreen() {
+		GeneralLoadingScreen frame = new GeneralLoadingScreen();
+		frame.setVisible(true);
+
+		SwingWorker<Boolean, Integer> swingWorker = new SwingWorker<Boolean, Integer>() {
+
+			@Override
+			protected Boolean doInBackground() throws Exception {
+				// WARN: do not update the GUI from within doInBackground(), use process() / done()!
+
+				// Do something ...
+				// prepareurl(p6, p_back, list, list.length);
+				//
+				for (int i = 0; i <= 100; i++) {
+					Thread.sleep((int) (Math.random() * 60));
+					// Use publish to send progress information to this.process() [optional]
+					publish(i);
+				}
+				return true;
+			}
+
+			@Override
+			protected void process(List<Integer> chunks) {
+				// handle published progress informations / update UI
+				AtomicInteger percent = new AtomicInteger();
+				chunks.forEach(percent::set);
+				frame.percentageLabel.setText(String.format("%s%%", percent));
+				int progress = chunks.get(chunks.size() - 1);
+				if(progress == 10){
+					frame.updateLabel.setText("Processing registration...");
+				}
+
+				if(progress == 20){
+					frame.updateLabel.setText("Loading Modules...");
+				}
+
+				if(progress == 50){
+					frame.updateLabel.setText("Connecting to Database...");
+				}
+
+				if(progress == 70){
+					frame.updateLabel.setText("Registration Successful!");
+				}
+
+				frame.loadingBar.setValue(progress);
+			}
+
+			@Override
+			protected void done() {
+				frame.dispose();
+				runHomePage();
+			}
+		};
+		swingWorker.execute();
+	} // end: startWorkerThread
 }

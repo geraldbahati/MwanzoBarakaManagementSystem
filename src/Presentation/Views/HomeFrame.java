@@ -1,9 +1,10 @@
 package Presentation.Views;
 
 import Data.Models.Member;
-import Presentation.Widgets.HomePanel;
-import Presentation.Widgets.SharesPanel;
-import Presentation.Widgets.TextBubbleBorder;
+import Data.Models.MemberLoan;
+import Logic.LoanEvent;
+import Logic.MemberEvent;
+import Presentation.Widgets.*;
 
 import javax.swing.*;
 import javax.swing.border.AbstractBorder;
@@ -13,6 +14,7 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.WindowEvent;
 
 public class HomeFrame extends JFrame {
 
@@ -23,15 +25,32 @@ public class HomeFrame extends JFrame {
 
 	private HomePanel homePanel;
 	private SharesPanel sharesPanel;
+	private LoanRepaymentPanel repaymentPanel;
+
+	private LoanApplicationPanel loanApplicationPanel;
+	private Member activeMember = null;
 
 	private static final String[] columnNames = { "Last Transaction Date", "Counter", "Monthly Contributed", "Total Shares"};
 	private static DefaultTableModel tableModel = new DefaultTableModel(columnNames,0);
+	private final LoanEvent loanEvent = new LoanEvent();
+
+	private void initState() {
+		activeMember = MemberEvent.getMember();
+		System.out.println(activeMember.getMemberID());
+		var sqlStatement = String.format(
+				"SELECT * FROM baraka_db.loan WHERE member_id = \"%s\";",
+				activeMember.getMemberID()
+		);
+
+		loanEvent.loadDataForDatabase(sqlStatement);
+	}
 	/**
 	 * Create the frame.
 	 */
 	public HomeFrame() {
+		initState();
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setSize(new Dimension(960, 700));
+		setSize(new Dimension(1105, 758));
 //		setBounds(100, 100, 960, 700);
 		setLocationRelativeTo(null);
 		contentPane = new JPanel();
@@ -39,7 +58,7 @@ public class HomeFrame extends JFrame {
 
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
-		titlePanel.setBounds(11, 11, 938, 35);
+		titlePanel.setBounds(11, 11, 1088, 35);
 		contentPane.add(titlePanel);
 		
 		JLabel titleLabel = new JLabel("Mwanzo Baraka Management System");
@@ -49,7 +68,7 @@ public class HomeFrame extends JFrame {
 		JPanel navigatorPanel = new JPanel();
 		AbstractBorder navigatorBorder = new TextBubbleBorder(new Color(49, 62, 79),2,16,0);
 		navigatorPanel.setBorder(navigatorBorder);
-		navigatorPanel.setBounds(11, 58, 938, 35);
+		navigatorPanel.setBounds(11, 58, 1088, 35);
 		navigatorPanel.setBackground(new Color(49, 62, 79));
 		navigatorPanel.setForeground(new Color(49, 62, 80));
 		contentPane.add(navigatorPanel);
@@ -61,30 +80,25 @@ public class HomeFrame extends JFrame {
 		iBankingLabel.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
 		navigatorPanel.add(iBankingLabel);
 		
-		JComboBox<Object> comboBox = new JComboBox<>(Member.getMemberRecords());
-		comboBox.setBounds(239, 7, 468, 27);
-		comboBox.setBackground(new Color(254, 255, 255));
-		comboBox.setForeground(new Color(0, 0, 0));
-		navigatorPanel.add(comboBox);
-		
-		JLabel lblNewLabel = new JLabel("Customer");
-		lblNewLabel.setBounds(162, 8, 76, 20);
-		lblNewLabel.setForeground(new Color(254, 255, 255));
-		lblNewLabel.setFont(new Font("Lucida Grande", Font.PLAIN, 16));
-		navigatorPanel.add(lblNewLabel);
+		JButton logoutButton = new JButton("Logout");
+		logoutButton.addActionListener(e -> openLoginFrame());
+		logoutButton.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
+		logoutButton.setBounds(942, 6, 117, 29);
+		navigatorPanel.add(logoutButton);
 		
 		JPanel bodyPanel = new JPanel();
-		bodyPanel.setBounds(11, 91, 938, 569);
+		bodyPanel.setBounds(11, 91, 1088, 633);
 		contentPane.add(bodyPanel);
 		bodyPanel.setLayout(null);
 		
 		JTabbedPane contentTabbedPane = new JTabbedPane(JTabbedPane.TOP);
-		contentTabbedPane.setBounds(222, -29, 710, 598);
+		contentTabbedPane.setBounds(222, -29, 860, 656);
 		bodyPanel.add(contentTabbedPane);
 		
 		AbstractBorder buttonBorder = new TextBubbleBorder(new Color(49, 62, 79),2,16,0);
 		
 		JButton loanApplicationButton = new JButton("Loan Application");
+		loanApplicationButton.addActionListener(e -> contentTabbedPane.setSelectedIndex(2));
 		loanApplicationButton.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
 		loanApplicationButton.setBorder(buttonBorder);
 		loanApplicationButton.setOpaque(true);
@@ -119,29 +133,43 @@ public class HomeFrame extends JFrame {
 		sharesContributionButton.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
 		sharesContributionButton.setBounds(24, 94, 180, 47);
 		bodyPanel.add(sharesContributionButton);
-		
-		
-		
-		JScrollPane homeScrollPane = new JScrollPane();
-		homeScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-		homeScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
-		contentTabbedPane.addTab("New tab", null, homeScrollPane, null);
+
+		JButton loanRepaymentButton = new JButton("Loan Repayment");
+		if (MemberLoan.getActiveLoan() == null) loanRepaymentButton.setEnabled(false);
+		loanRepaymentButton.addActionListener(e -> contentTabbedPane.setSelectedIndex(3));
+		loanRepaymentButton.setBorder(buttonBorder);
+		loanRepaymentButton.setOpaque(true);
+		loanRepaymentButton.setForeground(Color.WHITE);
+		loanRepaymentButton.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
+		loanRepaymentButton.setFocusable(false);
+		loanRepaymentButton.setBackground(new Color(49, 62, 79));
+		loanRepaymentButton.setBounds(24, 212, 180, 47);
+		bodyPanel.add(loanRepaymentButton);
 
 		homePanel = new HomePanel();
-		homeScrollPane.setViewportView(homePanel);
-		
-	
-		JScrollPane contributionScrollPane = new JScrollPane();
-		contributionScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-		contributionScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
-		contentTabbedPane.addTab("New tab", null, contributionScrollPane, null);
+		contentTabbedPane.addTab("Home", null, homePanel, null);
 
 		sharesPanel = new SharesPanel();
-		contributionScrollPane.setViewportView(sharesPanel);
-		
-		JScrollPane loanScrollPane = new JScrollPane();
-		loanScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-		loanScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
-		contentTabbedPane.addTab("New tab", null, loanScrollPane, null);
+		contentTabbedPane.addTab("Shares", null, sharesPanel, null);
+
+		loanApplicationPanel = new LoanApplicationPanel();
+		contentTabbedPane.addTab("Loan Application", null, loanApplicationPanel, null);
+
+		repaymentPanel = new LoanRepaymentPanel();
+		contentTabbedPane.addTab("Loan Repayment", null, repaymentPanel, null);
+
+	}
+
+	private void openLoginFrame() {
+		EventQueue.invokeLater(() -> {
+			try {
+				LoginFrame frame = new LoginFrame();
+				frame.setVisible(true);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		});
+		MemberLoan.setLoanNull();
+		dispose();
 	}
 }

@@ -1,5 +1,6 @@
 package Data.Models;
 
+import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLOutput;
@@ -7,7 +8,7 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
 
-public class Group {
+public class Group implements Serializable {
     private static final String tableTitle = "baraka_db.group";
     private static final String registrationFeeTableName = "group_registration_fee";
     private static final ArrayList<Group> groupRecords = new ArrayList<>();

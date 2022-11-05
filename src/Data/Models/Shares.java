@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 public class Shares {
     private static final String tableTitle = "baraka_db.shares_contribution";
-    private static ArrayList<Shares> sharesInstances;
+    private static ArrayList<Shares> memberShares;
     private static final String tableFields =
             "contribution_id, " +
                     "member_id, " +
@@ -36,6 +36,10 @@ public class Shares {
         this.amountContributed = amountContributed;
         this.created = created;
         this.updated = updated;
+    }
+
+    public static ArrayList<Shares> getMemberShares() {
+        return memberShares;
     }
 
     public String getContributionId() {
@@ -96,17 +100,17 @@ public class Shares {
     }
 
     public static void fromDatabase(ResultSet resultSet) {
-        sharesInstances = new ArrayList<>();
+        memberShares = new ArrayList<>();
         try {
             while (resultSet.next()) {
-                var member = new Shares(
+                var shares = new Shares(
                         resultSet.getString("contribution_id"),
                         resultSet.getString("member_id"),
                         resultSet.getDouble("amount_contributed"),
                         resultSet.getTimestamp("instance_created"),
                         resultSet.getTimestamp("instance_created")
                 );
-                sharesInstances.add(member);
+                memberShares.add(shares);
             }
 
         } catch (SQLException e) {

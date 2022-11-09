@@ -3,6 +3,7 @@ package Logic;
 import Data.Constants.CustomExceptions.SQLFailedToConnect;
 import Data.DBConnections.DBManager;
 import Data.Models.LoanRepayment;
+import Data.Models.MemberLoan;
 import Logic.CustomExceptions.InvalidFieldEnteredException;
 
 import java.sql.*;
@@ -35,6 +36,15 @@ public class RepaymentEvent {
         int newIndex = Integer.parseInt(recentId.split("-")[1]) + 1;
         return "R-" + String.format("%03d",newIndex);
 
+    }
+
+    public void loadRepaymentData(MemberLoan loan){
+        var sqlStatement = String.format(
+                "SELECT * FROM baraka_db.loan_repayment WHERE loan_id = \"%s\";",
+                loan.getLoanId()
+        );
+
+        loadDataForDatabase(sqlStatement);
     }
 
     public void loadDataForDatabase(String sqlQueryStatement) {

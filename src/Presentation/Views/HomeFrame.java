@@ -29,6 +29,7 @@ public class HomeFrame extends JFrame {
 
 	private LoanApplicationPanel loanApplicationPanel;
 	private Member activeMember = null;
+	private MemberLoan loan = null;
 
 	private static final String[] columnNames = { "Last Transaction Date", "Counter", "Monthly Contributed", "Total Shares"};
 	private static DefaultTableModel tableModel = new DefaultTableModel(columnNames,0);
@@ -43,6 +44,8 @@ public class HomeFrame extends JFrame {
 		);
 
 		loanEvent.loadDataForDatabase(sqlStatement);
+
+		loan = MemberLoan.getActiveLoan();
 	}
 	/**
 	 * Create the frame.
@@ -94,11 +97,40 @@ public class HomeFrame extends JFrame {
 		JTabbedPane contentTabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		contentTabbedPane.setBounds(222, -29, 860, 656);
 		bodyPanel.add(contentTabbedPane);
+
+		JButton loanRepaymentButton = new JButton("Loan Repayment");
+
+		homePanel = new HomePanel();
+		contentTabbedPane.addTab("Home", null, homePanel, null);
+
+		sharesPanel = new SharesPanel();
+		contentTabbedPane.addTab("Shares", null, sharesPanel, null);
+
+		loanApplicationPanel = new LoanApplicationPanel(loanRepaymentButton);
+		contentTabbedPane.addTab("Loan Application", null, loanApplicationPanel, null);
+
+		repaymentPanel = new LoanRepaymentPanel();
+		contentTabbedPane.addTab("Loan Repayment", null, repaymentPanel, null);
 		
 		AbstractBorder buttonBorder = new TextBubbleBorder(new Color(49, 62, 79),2,16,0);
+
+
+		if (loan == null || loan.isPaid()) loanRepaymentButton.setEnabled(false);
+		loanRepaymentButton.addActionListener(e -> contentTabbedPane.setSelectedIndex(3));
+		loanRepaymentButton.setBorder(buttonBorder);
+		loanRepaymentButton.setOpaque(true);
+		loanRepaymentButton.setForeground(Color.WHITE);
+		loanRepaymentButton.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
+		loanRepaymentButton.setFocusable(false);
+		loanRepaymentButton.setBackground(new Color(49, 62, 79));
+		loanRepaymentButton.setBounds(24, 212, 180, 47);
+		bodyPanel.add(loanRepaymentButton);
 		
 		JButton loanApplicationButton = new JButton("Loan Application");
-		loanApplicationButton.addActionListener(e -> contentTabbedPane.setSelectedIndex(2));
+		loanApplicationButton.addActionListener(e -> {
+			loanApplicationPanel.updateSharesStatus();
+			contentTabbedPane.setSelectedIndex(2);
+		});
 		loanApplicationButton.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
 		loanApplicationButton.setBorder(buttonBorder);
 		loanApplicationButton.setOpaque(true);
@@ -134,29 +166,7 @@ public class HomeFrame extends JFrame {
 		sharesContributionButton.setBounds(24, 94, 180, 47);
 		bodyPanel.add(sharesContributionButton);
 
-		JButton loanRepaymentButton = new JButton("Loan Repayment");
-		if (MemberLoan.getActiveLoan() == null) loanRepaymentButton.setEnabled(false);
-		loanRepaymentButton.addActionListener(e -> contentTabbedPane.setSelectedIndex(3));
-		loanRepaymentButton.setBorder(buttonBorder);
-		loanRepaymentButton.setOpaque(true);
-		loanRepaymentButton.setForeground(Color.WHITE);
-		loanRepaymentButton.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
-		loanRepaymentButton.setFocusable(false);
-		loanRepaymentButton.setBackground(new Color(49, 62, 79));
-		loanRepaymentButton.setBounds(24, 212, 180, 47);
-		bodyPanel.add(loanRepaymentButton);
 
-		homePanel = new HomePanel();
-		contentTabbedPane.addTab("Home", null, homePanel, null);
-
-		sharesPanel = new SharesPanel();
-		contentTabbedPane.addTab("Shares", null, sharesPanel, null);
-
-		loanApplicationPanel = new LoanApplicationPanel();
-		contentTabbedPane.addTab("Loan Application", null, loanApplicationPanel, null);
-
-		repaymentPanel = new LoanRepaymentPanel();
-		contentTabbedPane.addTab("Loan Repayment", null, repaymentPanel, null);
 
 	}
 

@@ -3,10 +3,10 @@ package Data.Models;
 import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.SQLOutput;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class Group implements Serializable {
     private static final String tableTitle = "baraka_db.group";
@@ -147,4 +147,5 @@ public class Group implements Serializable {
     public String toString() {
         return String.format("%s\t%s", groupId, groupName);
     }
+
 }

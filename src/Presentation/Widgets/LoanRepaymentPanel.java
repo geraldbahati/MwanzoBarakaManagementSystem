@@ -2,6 +2,7 @@ package Presentation.Widgets;
 
 import Data.Models.LoanRepayment;
 import Data.Models.MemberLoan;
+import Logic.LoanEvent;
 import Logic.RepaymentEvent;
 import Presentation.Views.GeneralLoadingScreen;
 
@@ -24,6 +25,8 @@ public class LoanRepaymentPanel extends JPanel {
 	private JLabel balanceHolder;
 
 	private final RepaymentEvent repaymentEvent = new RepaymentEvent();
+	private final LoanEvent loanEvent = new LoanEvent();
+
 	private MemberLoan loan = null;
 	private final DecimalFormat formatter = new DecimalFormat("#,###.00");
 	private final String pattern = "dd MMMM, yyyy";
@@ -464,6 +467,14 @@ public class LoanRepaymentPanel extends JPanel {
 				loan.getLoanId()
 		);
 
+		if(isLoanFullyPaid()) {
+			String sqlUpdateStatement = String.format(
+					"UPDATE baraka_db.loan SET is_paid = '1' WHERE (loan_id = \"%s\");",
+					loan.getLoanId()
+			);
+		loanEvent.updateDatabase(sqlUpdateStatement);
+
+		}
 		amountPaidHolder.setText("Ksh. "+formatter.format(calculateAmountRepaid()));
 		balanceHolder.setText("Ksh. "+formatter.format(calculateBalance()));
 		repaymentEvent.loadDataForDatabase(sqlStatement);
@@ -484,7 +495,9 @@ public class LoanRepaymentPanel extends JPanel {
 	}
 
 	private double calculateInterest() {
-		double period = Period.between(loan.getCreated().toLocalDateTime().toLocalDate(), loan.getDueDate().toLocalDate()).getYears()*12;
+		double period = Period.between(loan.getCreated().toLocalDateTime().toLocalDate(),
+						loan.getDueDate().toLocalDate())
+				.getYears()*12;
 		double rate = loan.getInterestRate();
 		double amount = loan.getAmountBorrowed();
 
@@ -492,11 +505,7 @@ public class LoanRepaymentPanel extends JPanel {
 	}
 
 	private double calculateTotalPayment() {
-		double amount =  loan.getAmountBorrowed();
-		Period period = Period.between(loan.getCreated().toLocalDateTime().toLocalDate(), loan.getDueDate().toLocalDate());
-		double months = period.getYears()*12;
-		double wholeInterest = calculateInterest() * months;
-		return wholeInterest + amount;
+		return calculateInterest() + loan.getAmountBorrowed();
 	}
 
 	private double calculateAmountRepaid() {
@@ -514,17 +523,21 @@ public class LoanRepaymentPanel extends JPanel {
 		return calculateTotalPayment() - calculateAmountRepaid();
 	}
 
+	private boolean isLoanFullyPaid() {
+		return calculateBalance() == 0;
+	}
+
 	private void showLoadingScreen() {
 		frame.setVisible(true);
 
-		SwingWorker<Boolean, Integer> swingWorker = new SwingWorker<Boolean, Integer>() {
+		SwingWorker<Boolean, Integer> swingWorker = new SwingWorker<>() {
 
 			@Override
 			protected Boolean doInBackground() throws Exception {
 				// WARN: do not update the GUI from within doInBackground(), use process() / done()!
 
 				// Do something ...
-				// prepareurl(p6, p_back, list, list.length);
+				// prepare url(p6, p_back, list, list.length);
 				//
 				for (int i = 0; i <= 100; i++) {
 					Thread.sleep((int) (Math.random() * 60));
@@ -541,19 +554,19 @@ public class LoanRepaymentPanel extends JPanel {
 				chunks.forEach(percent::set);
 				frame.percentageLabel.setText(String.format("%s%%", percent));
 				int progress = chunks.get(chunks.size() - 1);
-				if(progress == 10){
+				if (progress == 10) {
 					frame.updateLabel.setText("Processing payment...");
 				}
 
-				if(progress == 20){
+				if (progress == 20) {
 					frame.updateLabel.setText("Loading Modules...");
 				}
 
-				if(progress == 50){
+				if (progress == 50) {
 					frame.updateLabel.setText("Connecting to Database...");
 				}
 
-				if(progress == 70){
+				if (progress == 70) {
 					frame.updateLabel.setText("Repayment Successful!");
 				}
 

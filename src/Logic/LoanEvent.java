@@ -37,6 +37,22 @@ public class LoanEvent {
 
     }
 
+    public void updateDatabase(String sqlQueryStatement) {
+        try {
+            connection = new DBManager().connectToDB();
+            statement = connection.createStatement();
+            System.out.println(sqlQueryStatement);
+            preparedStatement = connection.prepareStatement(sqlQueryStatement);
+            preparedStatement.execute();
+
+            statement.close();
+            connection.close();
+
+        } catch (Exception exception){
+            exception.printStackTrace();
+        }
+    }
+
     public void loadDataForDatabase(String sqlQueryStatement) {
         try {
             connection = new DBManager().connectToDB();
@@ -66,6 +82,23 @@ public class LoanEvent {
             System.out.println("Invalid data");
         }
 
+    }
+
+    private void sendUpdateToDatabase(MemberLoan loan)  throws InvalidFieldEnteredException {
+        try {
+            if(connection!=null){
+                preparedStatement = connection.prepareStatement(loan.toSqlStatement());
+                preparedStatement.setString (1,loan.getLoanId());
+                preparedStatement.setString (2, loan.getMemberId());
+
+                preparedStatement.execute();
+                connection.close();
+            }
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            throw new InvalidFieldEnteredException();
+        }
     }
 
     private void sendLoanToDatabase(MemberLoan loan) throws InvalidFieldEnteredException {

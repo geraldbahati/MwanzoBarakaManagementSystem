@@ -7,19 +7,12 @@ import Logic.LoanEvent;
 import Logic.MemberEvent;
 import Logic.SharesEvent;
 import Presentation.Views.GeneralLoadingScreen;
+import Presentation.Views.GroupLoanApplicationFrame;
 
 import javax.swing.*;
-import java.awt.FlowLayout;
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
-import java.awt.Insets;
+import java.awt.*;
 import javax.swing.border.AbstractBorder;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.SystemColor;
-import java.awt.Font;
 import java.sql.Date;
 import java.text.DecimalFormat;
 import java.text.ParseException;
@@ -35,6 +28,10 @@ public class LoanApplicationPanel extends JPanel {
 	private final JLabel amountHolder;
 	private final JLabel monthlyPayLabel;
 	private final JLabel dateLabel;
+	private final JLabel maxLoanLabel;
+	private final JLabel sharesLabel;
+
+	private final JButton loanRepaymentButton;
 
 	private Member activeMember = null;
 	private final DecimalFormat formatter = new DecimalFormat("#,###.00");
@@ -59,9 +56,11 @@ public class LoanApplicationPanel extends JPanel {
 
 	/**
 	 * Create the panel.
+	 * @param loanRepaymentButton
 	 */
-	public LoanApplicationPanel() {
+	public LoanApplicationPanel(JButton loanRepaymentButton) {
 		initState();
+		this.loanRepaymentButton =loanRepaymentButton;
 		setLayout(null);
 		
 		JPanel userDetailsPanel = new JPanel();
@@ -118,7 +117,7 @@ public class LoanApplicationPanel extends JPanel {
 		gbc_nameLabel.gridy = 2;
 		userDetailsPanel.add(nameLabel, gbc_nameLabel);
 
-		JLabel sharesLabel = new JLabel("Ksh. "+ formatter.format(calculateTotalShares()));
+		sharesLabel = new JLabel("Ksh. "+ formatter.format(calculateTotalShares()));
 		sharesLabel.setFont(new Font("Noto Sans Kannada", Font.PLAIN, 13));
 		GridBagConstraints gbc_sharesLabel = new GridBagConstraints();
 		gbc_sharesLabel.anchor = GridBagConstraints.WEST;
@@ -127,7 +126,7 @@ public class LoanApplicationPanel extends JPanel {
 		gbc_sharesLabel.gridy = 2;
 		userDetailsPanel.add(sharesLabel, gbc_sharesLabel);
 		
-		JLabel groupLabel = new JLabel("No group");
+		JLabel groupLabel = new JLabel(activeMember.getAssociatedGroup().getGroupId() == null? "No group" : activeMember.getAssociatedGroup().getGroupId());
 		groupLabel.setForeground(SystemColor.scrollbar);
 		GridBagConstraints gbc_groupLabel = new GridBagConstraints();
 		gbc_groupLabel.anchor = GridBagConstraints.WEST;
@@ -176,7 +175,7 @@ public class LoanApplicationPanel extends JPanel {
 		gbc_verticalStrut_1.gridy = 1;
 		maxLoanPanel.add(verticalStrut_1, gbc_verticalStrut_1);
 		
-		JLabel maxLoanLabel = new JLabel("Ksh. "+ formatter.format(calculateMaxLoan()));
+		maxLoanLabel = new JLabel("Ksh. "+ formatter.format(calculateMaxLoan()));
 		maxLoanLabel.setForeground(SystemColor.textHighlight);
 		maxLoanLabel.setFont(new Font("Microsoft Sans Serif", Font.PLAIN, 22));
 		GridBagConstraints gbc_maxLoanLabel = new GridBagConstraints();
@@ -261,9 +260,9 @@ public class LoanApplicationPanel extends JPanel {
 		formPanel.add(periodLabel, gbc_periodLabel);
 		
 		periodComboBox = new JComboBox<>();
-		if ((activeMember.getAssociatedGroup() == null)) {
+		if (activeMember.getAssociatedGroup().getGroupId() == null) {
 			periodComboBox.setModel(new DefaultComboBoxModel<>(new String[]{"1 year", "2 years", "3 years"}));
-		} else {
+		}else {
 			periodComboBox.setModel(new DefaultComboBoxModel<>(new String[]{"1 year", "2 years", "3 years", "4 years"}));
 		}
 		periodComboBox.addActionListener(e -> updateLoanDetailPanel());
@@ -398,15 +397,29 @@ public class LoanApplicationPanel extends JPanel {
 		clearButton.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
 		buttonPanel.add(clearButton);
 		
-		JButton calculatorButton = new JButton("Loan Calculator");
-		calculatorButton.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
-		calculatorButton.setBounds(16, 348, 261, 56);
-		bodyPanel.add(calculatorButton);
+		JButton groupLoanButton = new JButton("Apply For Group Loan");
+		if(activeMember.getAssociatedGroup().getGroupId()==null) groupLoanButton.setEnabled(false);
+		groupLoanButton.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
+		groupLoanButton.setBounds(16, 348, 261, 56);
+		groupLoanButton.addActionListener(e -> openGroupLoanApplication());
+		bodyPanel.add(groupLoanButton);
 		
 		JSeparator separator_1 = new JSeparator();
 		separator_1.setBounds(0, 6, 720, 12);
 		bodyPanel.add(separator_1);
 
+
+	}
+
+	public void updateSharesStatus() {
+		sharesEvent.loadDataForDatabase(
+				String.format(
+						"SELECT * FROM baraka_db.shares_contribution WHERE member_id = \"%s\";",
+						activeMember.getMemberID()
+				)
+		);
+		sharesLabel.setText("Ksh. "+ formatter.format(calculateTotalShares()));
+		maxLoanLabel.setText("Ksh. "+ formatter.format(calculateMaxLoan()));
 	}
 
 	private void processLoan() {
@@ -424,6 +437,13 @@ public class LoanApplicationPanel extends JPanel {
 			var loanInstance = new MemberLoan(loanId,memberId,interestRate,amountBorrowed,dueDate);
 
 			loanEvent.submitLoanToDatabase(loanInstance);
+			loanRepaymentButton.setEnabled(true);
+			var sqlStatement = String.format(
+					"SELECT * FROM baraka_db.loan WHERE member_id = \"%s\";",
+					activeMember.getMemberID()
+			);
+
+			loanEvent.loadDataForDatabase(sqlStatement);
 
 		} catch (ParseException e) {
 			e.printStackTrace();
@@ -440,8 +460,6 @@ public class LoanApplicationPanel extends JPanel {
 		var loan = MemberLoan.getActiveLoan();
 		double amountBorrowed = Double.parseDouble(amountEntered.getText());
 
-		System.out.println(calculateMaxLoan());
-		System.out.println(amountBorrowed);
 
 		if (amountBorrowed > calculateMaxLoan()) {
 			JOptionPane.showMessageDialog(null,"The amount entered exceed the maximum loan you can borrow.","Alert",JOptionPane.WARNING_MESSAGE);
@@ -520,6 +538,17 @@ public class LoanApplicationPanel extends JPanel {
 		Calendar calendar = Calendar.getInstance();
 		calendar.add(Calendar.MONTH, (int) getPeriodInMonths());
 		return simpleDateFormat.format(calendar.getTime());
+	}
+
+	private void openGroupLoanApplication() {
+		EventQueue.invokeLater(() -> {
+			try {
+				GroupLoanApplicationFrame frame = new GroupLoanApplicationFrame(loanRepaymentButton);
+				frame.setVisible(true);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		});
 	}
 
 	private void showLoadingScreen() {
